@@ -1,0 +1,77 @@
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  client?: string;
+  ownerId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Task {
+  id: string;
+  projectId: string;
+  title: string;
+  description?: string;
+  status?: string;
+  assigneeId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Timer {
+  id: string;
+  userId: string;
+  projectId?: string;
+  project?: {
+    id: string;
+    name: string;
+    client?: string;
+  };
+  taskId?: string;
+  task?: {
+    id: string;
+    title: string;
+    status?: string;
+  };
+  note?: string;
+  billable: boolean;
+  status: 'RUNNING' | 'PAUSED' | 'COMPLETED' | 'CANCELED';
+  startedAt: Date;
+  pausedAt?: Date;
+  totalPausedMs: number;
+  elapsedMs: number;
+  currentElapsedMs?: number;
+  completedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TimeEntry {
+  id: string;
+  userId: string;
+  projectId?: string;
+  project?: {
+    id: string;
+    name: string;
+    client?: string;
+  };
+  taskId?: string;
+  task?: {
+    id: string;
+    title: string;
+    status?: string;
+  };
+  date: Date;
+  description?: string;
+  billable: boolean;
+  minutes: number;
+  sourceTimer?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

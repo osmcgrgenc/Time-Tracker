@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum TimerStatus {
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELED
+}
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  name          String?
+  passwordHash  String
+  // relationships
+  projects      Project[]
+  tasks         Task[]
+  timers        Timer[]
+  timeEntries   TimeEntry[]
+  // audit
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Project {
+  id          String      @id @default(cuid())
+  name        String
+  client      String?     // optional customer/analytic account
+  ownerId     String
+  owner       User        @relation(fields: [ownerId], references: [id])
+  tasks       Task[]
+  timers      Timer[]
+  timeEntries TimeEntry[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Task {
+  id          String      @id @default(cuid())
+  projectId   String
+  project     Project     @relation(fields: [projectId], references: [id])
+  title       String
+  description String?
+  status      String?     // open/closed etc.
+  assigneeId  String?
+  assignee    User?       @relation(fields: [assigneeId], references: [id])
+  timers      Timer[]
+  timeEntries TimeEntry[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Timer {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  projectId      String?
+  project        Project?     @relation(fields: [projectId], references: [id])
+  taskId         String?
+  task           Task?        @relation(fields: [taskId], references: [id])
+  note           String?
+  billable       Boolean      @default(false)
+  status         TimerStatus  @default(RUNNING)
+  startedAt      DateTime
+  pausedAt       DateTime?    // last pause time
+  totalPausedMs  Int          @default(0)
+  elapsedMs      Int          @default(0) // accumulates with start/resume
+  completedAt    DateTime?
+  // indexes
+  @@index([userId, status])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model TimeEntry {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  taskId      String?
+  task        Task?     @relation(fields: [taskId], references: [id])
+  date        DateTime  // effort date (timer completedAt or startedAt date)
+  description String?
+  billable    Boolean   @default(false)
+  minutes     Int       // duration in minutes (practical for Excel and reporting)
+  sourceTimer String?   // which timer it came from (audit)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
