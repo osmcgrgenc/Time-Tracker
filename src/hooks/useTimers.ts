@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { DashboardTimer, UserStats, Project, Task } from '@/types';
+import { DashboardTimer, UserStats, Project, Task, XPAction } from '@/types';
 import { toast } from 'sonner';
 
 export function useTimers() {
@@ -112,6 +112,16 @@ export function useTimers() {
         const responseData = await response.json();
         setTimers(prev => [responseData.timer, ...prev]);
         setUserStats(prev => ({ ...prev, xp: prev.xp + 5 }));
+
+        // Save XP history
+        await saveXPHistory(
+          'TIMER_STARTED',
+          5,
+          'Timer başlatıldı',
+          responseData.timer.id,
+          { projectId: data.projectId, taskId: data.taskId }
+        );
+
         toast.success('🚀 Timer started! +5 XP');
         return true;
       } else {
@@ -206,6 +216,15 @@ export function useTimers() {
           completedTasks: prev.completedTasks + 1
         }));
 
+        // Save XP history
+        await saveXPHistory(
+          'TIMER_COMPLETED',
+          xpGain,
+          'Timer tamamlandı',
+          timerId,
+          { description, completedAt: new Date().toISOString() }
+        );
+
         toast.success(`🏆 Timer completed! +${xpGain} XP`);
         return true;
       } else {
@@ -254,6 +273,35 @@ export function useTimers() {
       return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Save XP history
+  const saveXPHistory = async (
+    action: XPAction,
+    xpEarned: number,
+    description?: string,
+    timerId?: string,
+    metadata?: Record<string, any>
+  ) => {
+    if (!user) return;
+
+    try {
+      await fetch('/api/xp-history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          action,
+          xpEarned,
+          description,
+          timerId,
+          metadata: metadata ? JSON.stringify(metadata) : undefined,
+        }),
+      });
+    } catch (error) {
+      console.error('Error saving XP history:', error);
+      // Don't show error to user as this is not critical
+    }
   };
 
   const getXPProgress = () => {

@@ -14,6 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Square, Check, Plus, Clock, Trophy, Target, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTimers } from '@/hooks/useTimers';
+import XPHistory from './XPHistory';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -420,6 +421,9 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+
+        {/* XP History */}
+        <XPHistory />
       </main>
 
       {/* Complete Timer Dialog */}

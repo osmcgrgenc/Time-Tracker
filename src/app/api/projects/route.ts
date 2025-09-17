@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 const createProjectSchema = z.object({
   name: z.string().min(1),
-  client: z.string().optional(),
+  client: z.string().optional().transform(val => val === '' ? undefined : val),
   userId: z.string(),
 });
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const project = await db.project.create({
       data: {
         name,
-        client,
+        client: client || undefined,
         ownerId: userId,
       },
       include: {

@@ -106,3 +106,25 @@ export interface DashboardTimer {
     status?: string;
   };
 }
+
+export type XPAction = 'TIMER_STARTED' | 'TIMER_COMPLETED' | 'TIMER_CANCELLED' | 'STREAK_BONUS' | 'LEVEL_UP' | 'DAILY_GOAL';
+
+export interface XPHistory {
+  id: string;
+  userId: string;
+  action: XPAction;
+  xpEarned: number;
+  description?: string;
+  timerId?: string;
+  timer?: {
+    note?: string;
+    project?: {
+      name: string;
+    };
+    task?: {
+      title: string;
+    };
+  };
+  metadata?: string;
+  createdAt: Date;
+}

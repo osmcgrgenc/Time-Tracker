@@ -30,6 +30,7 @@ model User {
   tasks         Task[]
   timers        Timer[]
   timeEntries   TimeEntry[]
+  xpHistory     XPHistory[]
   // audit
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
@@ -79,6 +80,7 @@ model Timer {
   totalPausedMs  Int          @default(0)
   elapsedMs      Int          @default(0) // accumulates with start/resume
   completedAt    DateTime?
+  xpHistory      XPHistory[]
   // indexes
   @@index([userId, status])
   createdAt      DateTime     @default(now())
@@ -100,4 +102,29 @@ model TimeEntry {
   sourceTimer String?   // which timer it came from (audit)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+enum XPAction {
+  TIMER_STARTED
+  TIMER_COMPLETED
+  TIMER_CANCELLED
+  STREAK_BONUS
+  LEVEL_UP
+  DAILY_GOAL
+}
+
+model XPHistory {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  action      XPAction
+  xpEarned    Int       // amount of XP earned (can be negative for penalties)
+  description String?   // human readable description
+  timerId     String?   // related timer if applicable
+  timer       Timer?    @relation(fields: [timerId], references: [id])
+  metadata    String?   // JSON string for additional data (level, streak, etc.)
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([timerId])
 }
