@@ -1,8 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import Dashboard from '@/components/dashboard/Dashboard';
-import { Navigation } from '@/components/dashboard/Navigation';
+import GamifiedDashboard from '@/components/dashboard/GamifiedDashboard';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +13,7 @@ import { toast } from 'sonner';
 export default function Home() {
   const { user, login, register, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [activeView, setActiveView] = useState<'dashboard' | 'timesheet'>('dashboard');
+
   const [loginForm, setLoginForm] = useState({
     email: '',
     password: '',
@@ -75,28 +74,7 @@ export default function Home() {
   }
 
   if (user) {
-    return (
-      <div>
-        <Navigation 
-          activeView={activeView} 
-          onViewChange={setActiveView}
-          userStats={{
-            level: 1,
-            xp: 0,
-            streak: 0
-          }}
-        />
-        {activeView === 'dashboard' && <Dashboard />}
-        {activeView === 'timesheet' && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Timesheet</h2>
-              <p className="text-gray-600">Timesheet functionality coming soon...</p>
-            </div>
-          </div>
-        )}
-      </div>
-    );
+    return <GamifiedDashboard />;
   }
 
   return (
