@@ -75,3 +75,34 @@ export interface TimeEntry {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface UserStats {
+  level: number;
+  xp: number;
+  xpToNext: number;
+  streak: number;
+  totalHours: number;
+  completedTasks: number;
+  achievements: string[];
+}
+
+export interface DashboardTimer {
+  id: string;
+  status: 'RUNNING' | 'PAUSED' | 'COMPLETED' | 'CANCELED';
+  note?: string;
+  billable: boolean;
+  startedAt: string;
+  pausedAt?: string;
+  elapsedMs: number;
+  currentElapsedMs: number;
+  project?: {
+    id: string;
+    name: string;
+    client?: string;
+  };
+  task?: {
+    id: string;
+    title: string;
+    status?: string;
+  };
+}

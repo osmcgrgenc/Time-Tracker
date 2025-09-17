@@ -1,38 +1,77 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { LayoutDashboard, Clock, FileText } from 'lucide-react';
+import { LayoutDashboard, FileText, Trophy, Target } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface NavigationProps {
   activeView: 'dashboard' | 'timesheet';
   onViewChange: (view: 'dashboard' | 'timesheet') => void;
+  userStats?: {
+    level: number;
+    xp: number;
+    streak: number;
+  };
 }
 
-export function Navigation({ activeView, onViewChange }: NavigationProps) {
+export function Navigation({ activeView, onViewChange, userStats }: NavigationProps) {
+  const buttonClasses = useMemo(() => ({
+    base: "relative flex items-center gap-3 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500/50",
+    active: "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/25",
+    inactive: "bg-white/80 text-gray-700 hover:bg-orange-50 border border-gray-200 shadow-sm"
+  }), []);
+
   return (
-    <Card className="mb-6">
-      <CardContent className="p-2">
-        <div className="flex space-x-2">
-          <Button
-            variant={activeView === 'dashboard' ? 'default' : 'ghost'}
-            onClick={() => onViewChange('dashboard')}
-            className="flex items-center space-x-2"
-          >
-            <LayoutDashboard className="h-4 w-4" />
-            <span>Dashboard</span>
-          </Button>
-          <Button
-            variant={activeView === 'timesheet' ? 'default' : 'ghost'}
-            onClick={() => onViewChange('timesheet')}
-            className="flex items-center space-x-2"
-          >
-            <FileText className="h-4 w-4" />
-            <span>Timesheet</span>
-          </Button>
+    <div className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo & Brand */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+              <Target className="h-5 w-5 text-white" />
+            </div>
+            <h1 className="text-xl font-bold text-gray-900">TimeTracker</h1>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => onViewChange('dashboard')}
+              className={cn(
+                buttonClasses.base,
+                activeView === 'dashboard' ? buttonClasses.active : buttonClasses.inactive
+              )}
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </Button>
+            <Button
+              onClick={() => onViewChange('timesheet')}
+              className={cn(
+                buttonClasses.base,
+                activeView === 'timesheet' ? buttonClasses.active : buttonClasses.inactive
+              )}
+            >
+              <FileText className="h-4 w-4" />
+              Timesheet
+            </Button>
+          </div>
+
+          {/* Gamification Stats */}
+          {userStats && (
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full">
+                <Trophy className="h-4 w-4 text-yellow-600" />
+                <span className="text-sm font-medium text-yellow-800">Level {userStats.level}</span>
+              </div>
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">{userStats.streak}</span> day streak
+              </div>
+            </div>
+          )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
