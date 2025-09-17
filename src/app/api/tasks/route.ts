@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 
 const createTaskSchema = z.object({
+  userId: z.string(),
   projectId: z.string(),
   title: z.string().min(1),
   description: z.string().optional(),
@@ -24,7 +26,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const where: any = {};
+    const where: Prisma.TaskWhereInput = {};
     
     // Filter by user's projects or assigned tasks
     where.OR = [
@@ -81,16 +83,19 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { projectId, title, description, status, assigneeId } = createTaskSchema.parse(body);
+    const { userId, projectId, title, description, status, assigneeId } = createTaskSchema.parse(body);
 
     // Verify project exists and user has access
     const project = await db.project.findFirst({
-      where: { id: projectId },
+      where: { 
+        id: projectId,
+        ownerId: userId // Ensure requesting user owns the project
+      },
     });
 
     if (!project) {
       return NextResponse.json(
-        { error: 'Project not found' },
+        { error: 'Project not found or access denied' },
         { status: 404 }
       );
     }

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { validateLimit, sanitizeForLog } from '@/lib/validation';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'xp';
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = validateLimit(searchParams.get('limit'));
 
     // Get all users with their stats
     const users = await db.user.findMany({
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
 
       return {
         id: user.id,
-        name: user.name || user.email.split('@')[0],
+        name: sanitizeForLog(user.name || user.email.split('@')[0]),
         level: user.level || 1,
         xp: user.xp || 0,
         totalHours,

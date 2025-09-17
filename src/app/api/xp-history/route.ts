@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { db } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create XP history entry
-    const xpHistory = await prisma.xPHistory.create({
+    const xpHistory = await db.xPHistory.create({
       data: {
         userId,
         action,
@@ -50,7 +48,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const xpHistory = await prisma.xPHistory.findMany({
+    const xpHistory = await db.xPHistory.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: limit,

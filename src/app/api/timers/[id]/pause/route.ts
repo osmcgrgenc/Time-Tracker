@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { sanitizeForLog, validateUserId } from '@/lib/validation';
 
 export async function POST(
   request: NextRequest,
@@ -7,32 +8,30 @@ export async function POST(
 ) {
   try {
     const timerId = params.id;
-    const { userId } = await request.json();
-
-    console.log('Pause API called with timerId:', timerId, 'userId:', userId);
-
-    if (!userId) {
-      console.log('User ID is missing');
+    if (!timerId) {
       return NextResponse.json(
-        { error: 'User ID is required' },
+        { error: 'Timer ID is required' },
         { status: 400 }
       );
     }
+    
+    const { userId } = await request.json();
+
+    const validatedUserId = validateUserId(userId);
+    console.log('Pause API called with timerId:', sanitizeForLog(timerId), 'userId:', sanitizeForLog(validatedUserId));
 
     // Get the current timer
     const timer = await db.timer.findFirst({
-      where: { id: timerId, userId },
+      where: { id: timerId, userId: validatedUserId },
     });
 
     if (!timer) {
-      console.log('Timer not found for id:', timerId, 'userId:', userId);
+      console.log('Timer not found for id:', sanitizeForLog(timerId));
       return NextResponse.json(
         { error: 'Timer not found' },
         { status: 404 }
       );
     }
-
-    console.log('Found timer:', timer);
 
     if (timer.status !== 'RUNNING') {
       console.log('Timer is not running, status:', timer.status);

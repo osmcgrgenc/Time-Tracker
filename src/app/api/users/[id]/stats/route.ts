@@ -1,12 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { validateUserId } from '@/lib/validation';
+
+function calculateStreak(dates: string[]): number {
+  if (dates.length === 0) return 0;
+  
+  const sortedDates = [...new Set(dates)].sort();
+  let streak = 0;
+  let currentDate = new Date();
+  
+  for (let i = sortedDates.length - 1; i >= 0; i--) {
+    const entryDate = new Date(sortedDates[i]);
+    const daysDiff = Math.floor((currentDate.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff === streak) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  
+  return streak;
+}
+
+function calculateTodayStats(timeEntries: any[], timers: any[]) {
+  const today = new Date().toDateString();
+  const todayEntries = timeEntries.filter(entry => entry.date.toDateString() === today);
+  const todayMinutes = todayEntries.reduce((sum, entry) => sum + entry.minutes, 0);
+  const todayHours = Math.floor(todayMinutes / 60);
+  const todayTasks = timers.filter(timer => new Date(timer.startedAt).toDateString() === today).length;
+  
+  return { todayHours, todayTasks };
+}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const userId = params.id;
+    const userId = validateUserId(params.id);
 
     const user = await db.user.findUnique({
       where: { id: userId },
@@ -39,32 +71,11 @@ export async function GET(
     const completedTasks = user.timers.length;
 
     // Calculate today's stats
-    const today = new Date().toDateString();
-    const todayEntries = user.timeEntries.filter(entry => 
-      entry.date.toDateString() === today
-    );
-    const todayMinutes = todayEntries.reduce((sum, entry) => sum + entry.minutes, 0);
-    const todayHours = Math.floor(todayMinutes / 60);
-    
-    const todayTasks = user.timers.filter(timer => 
-      new Date(timer.startedAt).toDateString() === today
-    ).length;
+    const { todayHours, todayTasks } = calculateTodayStats(user.timeEntries, user.timers);
 
-    // Calculate streak (simplified)
-    const uniqueDates = [...new Set(user.timeEntries.map(e => e.date.toDateString()))].sort();
-    let streak = 0;
-    let currentDate = new Date();
-    
-    for (let i = uniqueDates.length - 1; i >= 0; i--) {
-      const entryDate = new Date(uniqueDates[i]);
-      const daysDiff = Math.floor((currentDate.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      if (daysDiff === streak) {
-        streak++;
-      } else {
-        break;
-      }
-    }
+    // Calculate streak
+    const uniqueDates = user.timeEntries.map(e => e.date.toDateString());
+    const streak = calculateStreak(uniqueDates);
 
     // Calculate level based on XP
     const currentXP = user.xp || 0;

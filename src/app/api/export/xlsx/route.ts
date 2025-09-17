@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
 import * as XLSX from 'xlsx';
+import { validateDateString } from '@/lib/validation';
+import { Prisma } from '@prisma/client';
 
 const exportSchema = z.object({
   userId: z.string(),
@@ -27,16 +29,16 @@ export async function POST(request: NextRequest) {
     } = exportSchema.parse(body);
 
     // Build where clause
-    const where: any = { userId };
+    const where: Prisma.TimeEntryWhereInput = { userId };
     
     if (from) {
-      where.date = { gte: new Date(from) };
+      where.date = { gte: validateDateString(from) };
     }
     
     if (to) {
       where.date = { 
         ...where.date,
-        lte: new Date(to) 
+        lte: validateDateString(to) 
       };
     }
     
@@ -133,7 +135,24 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateSummaryData(timeEntries: any[], groupBy: string[]) {
+interface TimeEntry {
+  date: Date;
+  minutes: number;
+  billable: boolean;
+  project?: { name: string } | null;
+  task?: { title: string } | null;
+}
+
+interface GroupSummary {
+  Group: string;
+  'Total Hours': number;
+  'Total Minutes': number;
+  'Entry Count': number;
+  'Billable Hours': number;
+  'Non-billable Hours': number;
+}
+
+function generateSummaryData(timeEntries: TimeEntry[], groupBy: string[]): GroupSummary[] {
   const grouped = timeEntries.reduce((acc, entry) => {
     const key = groupBy.map(field => {
       switch (field) {
@@ -174,7 +193,7 @@ function generateSummaryData(timeEntries: any[], groupBy: string[]) {
     return acc;
   }, {});
 
-  return Object.values(grouped).map((group: any) => ({
+  return Object.values(grouped).map((group: GroupSummary) => ({
     ...group,
     'Total Hours': Math.round(group['Total Hours'] * 100) / 100,
     'Billable Hours': Math.round(group['Billable Hours'] * 100) / 100,

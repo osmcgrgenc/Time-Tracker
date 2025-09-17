@@ -86,6 +86,13 @@ export async function DELETE(request: NextRequest) {
       },
     });
 
+    if (result.count === 0) {
+      return NextResponse.json(
+        { error: 'No time entries found or access denied' },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       message: `Successfully deleted ${result.count} time entries`,
       deletedCount: result.count,

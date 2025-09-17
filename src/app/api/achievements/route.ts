@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { sanitizeForLog } from '@/lib/validation';
 
 const achievementTemplates = [
   {
@@ -135,8 +136,8 @@ export async function GET(request: NextRequest) {
           data: {
             userId,
             achievementId: achievement.id,
-            title: achievement.title,
-            description: achievement.description,
+            title: sanitizeForLog(achievement.title),
+            description: sanitizeForLog(achievement.description),
             xpReward: achievement.xpReward,
             category: achievement.category,
             rarity: achievement.rarity
@@ -159,9 +160,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ 
       achievements: achievements.map(a => ({
         ...a,
+        title: sanitizeForLog(a.title),
+        description: sanitizeForLog(a.description),
         unlocked: a.unlocked || a.shouldUnlock
       })),
-      newUnlocked: newAchievements
+      newUnlocked: newAchievements.map(a => ({
+        ...a,
+        title: sanitizeForLog(a.title),
+        description: sanitizeForLog(a.description)
+      }))
     });
   } catch (error) {
     console.error('Get achievements error:', error);

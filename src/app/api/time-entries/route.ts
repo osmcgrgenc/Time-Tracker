@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
+import { validateUserId, validateDateString, sanitizeForLog } from '@/lib/validation';
 
 const getTimeEntriesSchema = z.object({
   userId: z.string(),
@@ -25,17 +26,18 @@ export async function GET(request: NextRequest) {
     };
 
     const validatedParams = getTimeEntriesSchema.parse(params);
+    validateUserId(validatedParams.userId);
 
     const where: any = { userId: validatedParams.userId };
     
     if (validatedParams.from) {
-      where.date = { gte: new Date(validatedParams.from) };
+      where.date = { gte: validateDateString(validatedParams.from) };
     }
     
     if (validatedParams.to) {
       where.date = { 
         ...where.date,
-        lte: new Date(validatedParams.to) 
+        lte: validateDateString(validatedParams.to) 
       };
     }
     

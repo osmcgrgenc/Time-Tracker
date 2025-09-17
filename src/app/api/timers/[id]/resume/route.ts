@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { sanitizeForLog } from '@/lib/validation';
 
 export async function POST(
   request: NextRequest,
@@ -8,8 +9,6 @@ export async function POST(
   try {
     const timerId = params.id;
     const { userId } = await request.json();
-
-    console.log('Resume API called with timerId:', timerId, 'userId:', userId);
 
     if (!userId) {
       console.log('User ID is missing');
@@ -32,7 +31,7 @@ export async function POST(
       );
     }
 
-    console.log('Found timer:', timer);
+    console.log('Found timer with status:', timer.status);
 
     if (timer.status !== 'PAUSED') {
       console.log('Timer is not paused, status:', timer.status);
@@ -43,7 +42,8 @@ export async function POST(
     }
 
     const now = new Date();
-    const pausedDuration = timer.pausedAt ? now.getTime() - new Date(timer.pausedAt).getTime() : 0;
+    const nowTime = now.getTime();
+    const pausedDuration = timer.pausedAt ? nowTime - new Date(timer.pausedAt).getTime() : 0;
     const newTotalPausedMs = timer.totalPausedMs + pausedDuration;
 
     console.log('Updating timer - pausedDuration:', pausedDuration, 'newTotalPausedMs:', newTotalPausedMs);

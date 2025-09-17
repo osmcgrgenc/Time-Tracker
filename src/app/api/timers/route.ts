@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
+import { sanitizeForLog } from '@/lib/validation';
+import { Prisma } from '@prisma/client';
 
 const createTimerSchema = z.object({
   projectId: z.string().optional(),
@@ -33,7 +35,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const where: any = { userId };
+    const where: Prisma.TimerWhereInput = { userId };
     
     if (status) {
       where.status = status;
@@ -67,7 +69,21 @@ export async function GET(request: NextRequest) {
       currentElapsedMs: computeElapsedMs(timer, now),
     }));
 
-    return NextResponse.json({ timers: timersWithElapsed });
+    return NextResponse.json({ 
+      timers: timersWithElapsed.map(timer => ({
+        ...timer,
+        note: timer.note ? sanitizeForLog(timer.note) : null,
+        project: timer.project ? {
+          ...timer.project,
+          name: sanitizeForLog(timer.project.name),
+          client: timer.project.client ? sanitizeForLog(timer.project.client) : null
+        } : null,
+        task: timer.task ? {
+          ...timer.task,
+          title: sanitizeForLog(timer.task.title)
+        } : null
+      }))
+    });
   } catch (error) {
     console.error('Get timers error:', error);
     return NextResponse.json(
@@ -93,6 +109,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate user exists
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { id: true }
+    });
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     // Validate that task belongs to project if both are provided
     if (taskId && projectId) {
       const task = await db.task.findFirst({
@@ -107,45 +136,50 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const timer = await db.timer.create({
-      data: {
-        userId,
-        projectId,
-        taskId,
-        note,
-        billable,
-        startedAt: new Date(),
-        status: 'RUNNING',
-      },
-      include: {
-        project: {
-          select: { id: true, name: true, client: true },
-        },
-        task: {
-          select: { id: true, title: true, status: true },
-        },
-      },
-    });
-
-    // Award XP for starting timer
+    // Create timer and award XP in single transaction
     const xpReward = 5;
-    await db.user.update({
-      where: { id: userId },
-      data: {
-        xp: { increment: xpReward }
-      }
+    const result = await db.$transaction(async (tx) => {
+      const timer = await tx.timer.create({
+        data: {
+          userId,
+          projectId,
+          taskId,
+          note,
+          billable,
+          startedAt: new Date(),
+          status: 'RUNNING',
+        },
+        include: {
+          project: {
+            select: { id: true, name: true, client: true },
+          },
+          task: {
+            select: { id: true, title: true, status: true },
+          },
+        },
+      });
+
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          xp: { increment: xpReward }
+        }
+      });
+
+      await tx.xPHistory.create({
+        data: {
+          userId,
+          action: 'TIMER_STARTED',
+          xpEarned: xpReward,
+          description: `Started timer: ${sanitizeForLog(note || 'Untitled')}`,
+          timerId: timer.id,
+        }
+      });
+
+      return timer;
     });
 
-    // Create XP history entry
-    await db.xPHistory.create({
-      data: {
-        userId,
-        action: 'TIMER_STARTED',
-        xpEarned: xpReward,
-        description: `Started timer: ${note || 'Untitled'}`,
-        timerId: timer.id,
-      }
-    });
+    const timer = result;
 
     return NextResponse.json({ timer, xpGained: xpReward }, { status: 201 });
   } catch (error) {
