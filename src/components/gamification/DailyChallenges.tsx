@@ -28,107 +28,79 @@ interface DailyChallengesProps {
     focusTime: number;
   };
   onXPGain: (xp: number) => void;
+  userId: string;
 }
 
-export function DailyChallenges({ userStats, onXPGain }: DailyChallengesProps) {
+export function DailyChallenges({ userStats, onXPGain, userId }: DailyChallengesProps) {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [completedToday, setCompletedToday] = useState(0);
 
-  const generateDailyChallenges = (): Challenge[] => {
-    const today = new Date().toDateString();
-    const savedDate = localStorage.getItem('challengeDate');
-    
-    // Generate new challenges if it's a new day
-    if (savedDate !== today) {
-      const newChallenges: Challenge[] = [
-        {
-          id: 'daily_time',
-          title: 'Time Goal',
-          description: 'Track 2 hours today',
-          icon: <Clock className="h-4 w-4" />,
-          target: 2,
-          current: 0,
-          xpReward: 100,
-          completed: false,
-          type: 'time'
-        },
-        {
-          id: 'daily_tasks',
-          title: 'Task Master',
-          description: 'Complete 3 tasks today',
-          icon: <Target className="h-4 w-4" />,
-          target: 3,
-          current: 0,
-          xpReward: 75,
-          completed: false,
-          type: 'tasks'
-        },
-        {
-          id: 'focus_session',
-          title: 'Deep Focus',
-          description: 'Have a 25-minute focused session',
-          icon: <Zap className="h-4 w-4" />,
-          target: 25,
-          current: 0,
-          xpReward: 50,
-          completed: false,
-          type: 'focus'
-        }
-      ];
-      
-      localStorage.setItem('challengeDate', today);
-      localStorage.setItem('dailyChallenges', JSON.stringify(newChallenges));
-      return newChallenges;
+  const fetchChallenges = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/challenges?userId=${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const challengesWithIcons = data.challenges.map((challenge: any) => ({
+          ...challenge,
+          icon: challenge.type === 'time' ? <Clock className="h-4 w-4" /> :
+                challenge.type === 'tasks' ? <Target className="h-4 w-4" /> :
+                <Zap className="h-4 w-4" />
+        }));
+        setChallenges(challengesWithIcons);
+      }
+    } catch (error) {
+      console.error('Error fetching challenges:', error);
     }
-    
-    // Load existing challenges
-    const saved = localStorage.getItem('dailyChallenges');
-    return saved ? JSON.parse(saved) : [];
   };
 
   useEffect(() => {
-    const initialChallenges = generateDailyChallenges();
-    setChallenges(initialChallenges);
-  }, []);
+    if (userId) {
+      fetchChallenges(userId);
+    }
+  }, [userId]);
+
+  const updateChallengeProgress = async () => {
+    if (!userId || challenges.length === 0) return;
+    
+    try {
+      const response = await fetch('/api/challenges/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          userStats
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update local state with icons
+        const challengesWithIcons = data.challenges.map((challenge: any) => ({
+          ...challenge,
+          icon: challenge.type === 'time' ? <Clock className="h-4 w-4" /> :
+                challenge.type === 'tasks' ? <Target className="h-4 w-4" /> :
+                <Zap className="h-4 w-4" />
+        }));
+        setChallenges(challengesWithIcons);
+        
+        // Handle XP gain
+        if (data.xpGained > 0) {
+          onXPGain(data.xpGained);
+          const completedChallenges = data.challenges.filter((c: any) => c.completed && !challenges.find(old => old.id === c.id && old.completed));
+          completedChallenges.forEach((challenge: any) => {
+            toast.success(`🎯 Challenge Complete: ${challenge.title}! +${challenge.xpReward} XP`);
+          });
+          setCompletedToday(prev => prev + completedChallenges.length);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating challenge progress:', error);
+    }
+  };
 
   useEffect(() => {
-    const updatedChallenges = challenges.map(challenge => {
-      let current = 0;
-      
-      switch (challenge.type) {
-        case 'time':
-          current = userStats.todayHours;
-          break;
-        case 'tasks':
-          current = userStats.todayTasks;
-          break;
-        case 'focus':
-          current = userStats.focusTime;
-          break;
-        case 'streak':
-          current = userStats.currentStreak;
-          break;
-      }
-      
-      const wasCompleted = challenge.completed;
-      const isCompleted = current >= challenge.target;
-      
-      // Check for new completions
-      if (!wasCompleted && isCompleted) {
-        onXPGain(challenge.xpReward);
-        toast.success(`🎯 Challenge Complete: ${challenge.title}! +${challenge.xpReward} XP`);
-        setCompletedToday(prev => prev + 1);
-      }
-      
-      return {
-        ...challenge,
-        current: Math.min(current, challenge.target),
-        completed: isCompleted
-      };
-    });
-    
-    setChallenges(updatedChallenges);
-    localStorage.setItem('dailyChallenges', JSON.stringify(updatedChallenges));
+    updateChallengeProgress();
   }, [userStats]);
 
   const totalXP = challenges.reduce((sum, challenge) => sum + (challenge.completed ? challenge.xpReward : 0), 0);

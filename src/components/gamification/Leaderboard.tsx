@@ -35,88 +35,24 @@ export function Leaderboard({ currentUser }: LeaderboardProps) {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
   const [activeTab, setActiveTab] = useState('xp');
 
-  // Mock data - in real app, this would come from API
+  // Fetch leaderboard data from API
   useEffect(() => {
-    const mockData: Omit<LeaderboardEntry, 'rank'>[] = [
-      {
-        id: currentUser.id,
-        name: currentUser.name,
-        level: currentUser.level,
-        xp: currentUser.xp,
-        totalHours: currentUser.totalHours,
-        completedTasks: currentUser.completedTasks,
-        streak: currentUser.streak
-      },
-      {
-        id: '2',
-        name: 'Alex Johnson',
-        level: 15,
-        xp: 2450,
-        totalHours: 156,
-        completedTasks: 89,
-        streak: 12
-      },
-      {
-        id: '3',
-        name: 'Sarah Chen',
-        level: 12,
-        xp: 1890,
-        totalHours: 134,
-        completedTasks: 67,
-        streak: 8
-      },
-      {
-        id: '4',
-        name: 'Mike Wilson',
-        level: 18,
-        xp: 3200,
-        totalHours: 203,
-        completedTasks: 112,
-        streak: 15
-      },
-      {
-        id: '5',
-        name: 'Emma Davis',
-        level: 10,
-        xp: 1650,
-        totalHours: 98,
-        completedTasks: 54,
-        streak: 6
-      },
-      {
-        id: '6',
-        name: 'David Kim',
-        level: 14,
-        xp: 2100,
-        totalHours: 145,
-        completedTasks: 78,
-        streak: 10
+    const fetchLeaderboard = async () => {
+      try {
+        const response = await fetch(`/api/leaderboard?type=${activeTab}&limit=10`);
+        if (response.ok) {
+          const data = await response.json();
+          setLeaderboardData(data.leaderboard);
+        } else {
+          console.error('Failed to fetch leaderboard data');
+        }
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
       }
-    ];
+    };
 
-    // Sort and add ranks based on active tab
-    const sortedData = [...mockData].sort((a, b) => {
-      switch (activeTab) {
-        case 'xp':
-          return b.xp - a.xp;
-        case 'hours':
-          return b.totalHours - a.totalHours;
-        case 'tasks':
-          return b.completedTasks - a.completedTasks;
-        case 'streak':
-          return b.streak - a.streak;
-        default:
-          return b.xp - a.xp;
-      }
-    });
-
-    const rankedData = sortedData.map((entry, index) => ({
-      ...entry,
-      rank: index + 1
-    }));
-
-    setLeaderboardData(rankedData);
-  }, [currentUser, activeTab]);
+    fetchLeaderboard();
+  }, [activeTab]);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {

@@ -127,7 +127,27 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ timer }, { status: 201 });
+    // Award XP for starting timer
+    const xpReward = 5;
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        xp: { increment: xpReward }
+      }
+    });
+
+    // Create XP history entry
+    await db.xPHistory.create({
+      data: {
+        userId,
+        action: 'TIMER_STARTED',
+        xpEarned: xpReward,
+        description: `Started timer: ${note || 'Untitled'}`,
+        timerId: timer.id,
+      }
+    });
+
+    return NextResponse.json({ timer, xpGained: xpReward }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

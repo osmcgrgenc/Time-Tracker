@@ -21,19 +21,23 @@ enum TimerStatus {
 }
 
 model User {
-  id            String       @id @default(cuid())
-  email         String       @unique
+  id            String          @id @default(cuid())
+  email         String          @unique
   name          String?
   passwordHash  String
+  level         Int             @default(1)
+  xp            Int             @default(0)
   // relationships
   projects      Project[]
   tasks         Task[]
   timers        Timer[]
   timeEntries   TimeEntry[]
   xpHistory     XPHistory[]
+  challenges    UserChallenge[]
+  achievements  UserAchievement[]
   // audit
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 }
 
 model Project {
@@ -127,4 +131,40 @@ model XPHistory {
 
   @@index([userId, createdAt])
   @@index([timerId])
+}
+
+model UserChallenge {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  challengeId String    // daily_time, daily_tasks, etc.
+  title       String
+  description String
+  target      Int
+  current     Int       @default(0)
+  xpReward    Int
+  type        String    // time, tasks, streak, focus
+  completed   Boolean   @default(false)
+  date        DateTime  // challenge date
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId, date])
+  @@unique([userId, challengeId, date])
+}
+
+model UserAchievement {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  achievementId String    // first_hour, ten_hours, etc.
+  title         String
+  description   String
+  xpReward      Int
+  category      String    // time, tasks, streak, special
+  rarity        String    // common, rare, epic, legendary
+  unlockedAt    DateTime  @default(now())
+
+  @@index([userId])
+  @@unique([userId, achievementId])
 }

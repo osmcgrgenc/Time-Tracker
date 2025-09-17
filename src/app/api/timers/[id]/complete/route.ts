@@ -86,9 +86,30 @@ export async function POST(
       },
     });
 
+    // Award XP for completing timer
+    const xpReward = 15;
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        xp: { increment: xpReward }
+      }
+    });
+
+    // Create XP history entry
+    await db.xPHistory.create({
+      data: {
+        userId,
+        action: 'TIMER_COMPLETED',
+        xpEarned: xpReward,
+        description: `Completed timer: ${description || timer.note || 'Untitled'}`,
+        timerId,
+      }
+    });
+
     return NextResponse.json({
       timer: updatedTimer,
       timeEntry,
+      xpGained: xpReward
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

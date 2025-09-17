@@ -30,114 +30,56 @@ interface AchievementSystemProps {
     level: number;
   };
   onXPGain: (xp: number) => void;
+  userId: string;
 }
 
-export function AchievementSystem({ userStats, onXPGain }: AchievementSystemProps) {
+export function AchievementSystem({ userStats, onXPGain, userId }: AchievementSystemProps) {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [newUnlocked, setNewUnlocked] = useState<Achievement[]>([]);
 
-  const achievementTemplates: Omit<Achievement, 'current' | 'unlocked'>[] = [
-    {
-      id: 'first_hour',
-      title: 'Getting Started',
-      description: 'Track your first hour',
-      icon: <Clock className="h-5 w-5" />,
-      requirement: 1,
-      xpReward: 50,
-      category: 'time',
-      rarity: 'common'
-    },
-    {
-      id: 'ten_hours',
-      title: 'Time Keeper',
-      description: 'Track 10 hours total',
-      icon: <Target className="h-5 w-5" />,
-      requirement: 10,
-      xpReward: 100,
-      category: 'time',
-      rarity: 'common'
-    },
-    {
-      id: 'hundred_hours',
-      title: 'Time Master',
-      description: 'Track 100 hours total',
-      icon: <Award className="h-5 w-5" />,
-      requirement: 100,
-      xpReward: 500,
-      category: 'time',
-      rarity: 'rare'
-    },
-    {
-      id: 'first_task',
-      title: 'Task Rookie',
-      description: 'Complete your first task',
-      icon: <Star className="h-5 w-5" />,
-      requirement: 1,
-      xpReward: 25,
-      category: 'tasks',
-      rarity: 'common'
-    },
-    {
-      id: 'ten_tasks',
-      title: 'Task Warrior',
-      description: 'Complete 10 tasks',
-      icon: <Medal className="h-5 w-5" />,
-      requirement: 10,
-      xpReward: 150,
-      category: 'tasks',
-      rarity: 'common'
-    },
-    {
-      id: 'week_streak',
-      title: 'Consistent',
-      description: 'Maintain a 7-day streak',
-      icon: <Zap className="h-5 w-5" />,
-      requirement: 7,
-      xpReward: 200,
-      category: 'streak',
-      rarity: 'rare'
+  const fetchAchievements = async () => {
+    if (!userId) return;
+    
+    try {
+      const response = await fetch(`/api/achievements?userId=${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const achievementsWithIcons = data.achievements.map((achievement: any) => ({
+          ...achievement,
+          icon: achievement.category === 'time' ? <Clock className="h-5 w-5" /> :
+                achievement.category === 'tasks' ? <Target className="h-5 w-5" /> :
+                achievement.category === 'streak' ? <Zap className="h-5 w-5" /> :
+                <Award className="h-5 w-5" />
+        }));
+        setAchievements(achievementsWithIcons);
+        
+        // Handle new unlocked achievements
+        if (data.newUnlocked && data.newUnlocked.length > 0) {
+          const newWithIcons = data.newUnlocked.map((achievement: any) => ({
+            ...achievement,
+            icon: achievement.category === 'time' ? <Clock className="h-5 w-5" /> :
+                  achievement.category === 'tasks' ? <Target className="h-5 w-5" /> :
+                  achievement.category === 'streak' ? <Zap className="h-5 w-5" /> :
+                  <Award className="h-5 w-5" />
+          }));
+          setNewUnlocked(newWithIcons);
+          
+          // Show notifications
+          newWithIcons.forEach((achievement: any) => {
+            onXPGain(achievement.xpReward);
+            toast.success(`🏆 Achievement: ${achievement.title}! +${achievement.xpReward} XP`);
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching achievements:', error);
     }
-  ];
+  };
 
   useEffect(() => {
-    const updatedAchievements = achievementTemplates.map(template => {
-      let current = 0;
-      
-      switch (template.category) {
-        case 'time':
-          current = userStats.totalHours;
-          break;
-        case 'tasks':
-          current = userStats.completedTasks;
-          break;
-        case 'streak':
-          current = userStats.streak;
-          break;
-        case 'special':
-          current = userStats.level;
-          break;
-      }
-      
-      const wasUnlocked = achievements.find(a => a.id === template.id)?.unlocked || false;
-      const isUnlocked = current >= template.requirement;
-      
-      if (!wasUnlocked && isUnlocked) {
-        const newAchievement = { ...template, current, unlocked: isUnlocked };
-        setNewUnlocked(prev => [...prev, newAchievement]);
-        onXPGain(template.xpReward);
-        toast.success(`🏆 Achievement: ${template.title}! +${template.xpReward} XP`);
-      }
-      
-      return {
-        ...template,
-        current,
-        unlocked: isUnlocked
-      };
-    });
-    
-    setAchievements(updatedAchievements);
-  }, [userStats]);
+    fetchAchievements();
+  }, [userId, userStats]);
 
   useEffect(() => {
     if (newUnlocked.length > 0) {

@@ -832,6 +832,7 @@ export default function GamifiedDashboard() {
                 focusTime: userStats.focusTime
               }}
               onXPGain={handleXPGain}
+              userId={user.id}
             />
           </TabsContent>
 
@@ -839,6 +840,7 @@ export default function GamifiedDashboard() {
             <AchievementSystem 
               userStats={userStats}
               onXPGain={handleXPGain}
+              userId={user.id}
             />
           </TabsContent>
 
