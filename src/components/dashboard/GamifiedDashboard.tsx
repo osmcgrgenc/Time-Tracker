@@ -365,45 +365,47 @@ export default function GamifiedDashboard() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
-                  <Target className="h-5 w-5 text-white" />
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                  <Target className="h-3 w-3 sm:h-5 sm:w-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-semibold text-gray-900">TimeTracker Pro</h1>
-                  <p className="text-sm text-gray-500">Level {userStats.level} • {userStats.xp} XP</p>
+                  <h1 className="text-sm sm:text-lg font-semibold text-gray-900">TimeTracker Pro</h1>
+                  <p className="text-xs sm:text-sm text-gray-500">Level {userStats.level} • {userStats.xp} XP</p>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {runningTimers.length > 0 && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 rounded-full">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm font-medium text-green-800">
-                    {runningTimers.length} active
+                <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-green-100 rounded-full">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span className="text-xs sm:text-sm font-medium text-green-800">
+                    <span className="hidden sm:inline">{runningTimers.length} active</span>
+                    <span className="sm:hidden">{runningTimers.length}</span>
                   </span>
                 </div>
               )}
-              <Button variant="outline" onClick={logout} className="text-sm">
-                Logout
+              <Button variant="outline" onClick={logout} className="text-xs sm:text-sm px-2 sm:px-4">
+                <span className="hidden sm:inline">Logout</span>
+                <span className="sm:hidden">Exit</span>
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="timesheet">Timesheet</TabsTrigger>
-            <TabsTrigger value="focus">Focus Mode</TabsTrigger>
-            <TabsTrigger value="challenges">Challenges</TabsTrigger>
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
-            <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-8">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1">
+            <TabsTrigger value="dashboard" className="text-xs sm:text-sm">Dashboard</TabsTrigger>
+            <TabsTrigger value="timesheet" className="text-xs sm:text-sm">Timesheet</TabsTrigger>
+            <TabsTrigger value="focus" className="text-xs sm:text-sm">Focus</TabsTrigger>
+            <TabsTrigger value="challenges" className="text-xs sm:text-sm">Challenges</TabsTrigger>
+            <TabsTrigger value="achievements" className="text-xs sm:text-sm">Awards</TabsTrigger>
+            <TabsTrigger value="leaderboard" className="text-xs sm:text-sm">Leaders</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-8">

@@ -49,7 +49,7 @@ export function FocusMode({ onFocusComplete, onXPGain }: FocusModeProps) {
 
   useEffect(() => {
     // Create audio element for notifications
-    audioRef.current = new Audio('/notification.mp3'); // You'd need to add this sound file
+    audioRef.current = new Audio('/notification.wav'); // You'd need to add this sound file
     audioRef.current.volume = 0.5;
     
     return () => {

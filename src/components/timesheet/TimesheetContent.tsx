@@ -230,85 +230,86 @@ export default function TimesheetContent() {
   return (
     <div className="space-y-8">
       {/* Header Actions */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Timesheet</h2>
-          <p className="text-gray-600">View and export your time entries</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Timesheet</h2>
+          <p className="text-sm sm:text-base text-gray-600">View and export your time entries</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button onClick={fetchData} disabled={isLoading} variant="outline" className="text-sm">
-            <RotateCcw className="h-4 w-4 mr-2" />
-            Refresh
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Button onClick={fetchData} disabled={isLoading} variant="outline" className="text-xs sm:text-sm px-3 sm:px-4">
+            <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Refresh</span>
           </Button>
           <Button 
             onClick={exportToExcel} 
             disabled={isLoading || timeEntries.length === 0}
-            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-sm"
+            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-xs sm:text-sm px-3 sm:px-4"
           >
-            <Download className="h-4 w-4 mr-2" />
-            Export Excel
+            <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Export Excel</span>
+            <span className="sm:hidden">Export</span>
           </Button>
         </div>
       </div>
 
       {/* Summary Cards */}
       {summary && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium">Total Time</p>
-                  <p className="text-3xl font-bold">{formatDuration(summary.totalMinutes)}</p>
+                  <p className="text-blue-100 text-xs sm:text-sm font-medium">Total Time</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{formatDuration(summary.totalMinutes)}</p>
                 </div>
-                <Clock className="h-8 w-8 text-blue-200" />
+                <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-blue-200" />
               </div>
-              <p className="text-xs text-blue-100 mt-4">
+              <p className="text-xs text-blue-100 mt-2 sm:mt-4">
                 {summary.totalEntries} entries
               </p>
             </CardContent>
           </Card>
           
           <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-sm font-medium">Billable Time</p>
-                  <p className="text-3xl font-bold">{formatDuration(summary.billableMinutes)}</p>
+                  <p className="text-green-100 text-xs sm:text-sm font-medium">Billable Time</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{formatDuration(summary.billableMinutes)}</p>
                 </div>
-                <Badge className="h-8 w-8 text-green-200 bg-green-400 rounded-full flex items-center justify-center">$</Badge>
+                <Badge className="h-6 w-6 sm:h-8 sm:w-8 text-green-200 bg-green-400 rounded-full flex items-center justify-center text-xs sm:text-sm">$</Badge>
               </div>
-              <p className="text-xs text-green-100 mt-4">
+              <p className="text-xs text-green-100 mt-2 sm:mt-4">
                 {Math.round((summary.billableMinutes / summary.totalMinutes) * 100)}% of total
               </p>
             </CardContent>
           </Card>
           
           <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-sm font-medium">Projects</p>
-                  <p className="text-3xl font-bold">{summary.projectSummary.length}</p>
+                  <p className="text-purple-100 text-xs sm:text-sm font-medium">Projects</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{summary.projectSummary.length}</p>
                 </div>
-                <Target className="h-8 w-8 text-purple-200" />
+                <Target className="h-6 w-6 sm:h-8 sm:w-8 text-purple-200" />
               </div>
-              <p className="text-xs text-purple-100 mt-4">
+              <p className="text-xs text-purple-100 mt-2 sm:mt-4">
                 Active projects
               </p>
             </CardContent>
           </Card>
           
           <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-orange-100 text-sm font-medium">Non-billable</p>
-                  <p className="text-3xl font-bold">{formatDuration(summary.totalMinutes - summary.billableMinutes)}</p>
+                  <p className="text-orange-100 text-xs sm:text-sm font-medium">Non-billable</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{formatDuration(summary.totalMinutes - summary.billableMinutes)}</p>
                 </div>
-                <Clock className="h-8 w-8 text-orange-200" />
+                <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-orange-200" />
               </div>
-              <p className="text-xs text-orange-100 mt-4">
+              <p className="text-xs text-orange-100 mt-2 sm:mt-4">
                 Internal time
               </p>
             </CardContent>
@@ -328,7 +329,7 @@ export default function TimesheetContent() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
             <div className="space-y-2">
               <Label>From Date</Label>
               <Input
@@ -412,8 +413,8 @@ export default function TimesheetContent() {
       {selectedEntries.size > 0 && (
         <Card className="border-red-200 bg-red-50 shadow-lg">
           <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <span className="text-red-700 font-medium flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <span className="text-red-700 font-medium flex items-center gap-2 text-sm">
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                 {selectedEntries.size} entr{selectedEntries.size > 1 ? 'ies' : 'y'} selected
               </span>
@@ -421,7 +422,7 @@ export default function TimesheetContent() {
                 variant="destructive" 
                 size="sm"
                 onClick={deleteSelectedEntries}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-red-600 hover:bg-red-700 text-xs sm:text-sm"
               >
                 Delete Selected
               </Button>
@@ -452,7 +453,7 @@ export default function TimesheetContent() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-12">
+                    <TableHead className="w-8 sm:w-12">
                       <input
                         type="checkbox"
                         checked={selectedEntries.size === timeEntries.length}
@@ -466,12 +467,12 @@ export default function TimesheetContent() {
                         className="rounded"
                       />
                     </TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Project</TableHead>
-                    <TableHead>Task</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Billable</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Date</TableHead>
+                    <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Project</TableHead>
+                    <TableHead className="text-xs sm:text-sm hidden md:table-cell">Task</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Description</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Duration</TableHead>
+                    <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Billable</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -485,10 +486,14 @@ export default function TimesheetContent() {
                           className="rounded"
                         />
                       </TableCell>
-                      <TableCell>
-                        {new Date(entry.date).toLocaleDateString()}
+                      <TableCell className="text-xs sm:text-sm">
+                        <div>{new Date(entry.date).toLocaleDateString()}</div>
+                        <div className="sm:hidden text-xs text-gray-500 mt-1">
+                          {entry.project?.name || 'Unassigned'}
+                          {entry.task?.title && ` • ${entry.task.title}`}
+                        </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs sm:text-sm hidden sm:table-cell">
                         {entry.project?.name || 'Unassigned'}
                         {entry.project?.client && (
                           <div className="text-xs text-gray-500">
@@ -496,17 +501,22 @@ export default function TimesheetContent() {
                           </div>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs sm:text-sm hidden md:table-cell">
                         {entry.task?.title || 'Unassigned'}
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">
+                      <TableCell className="max-w-xs truncate text-xs sm:text-sm">
                         {entry.description || '-'}
+                        <div className="sm:hidden mt-1">
+                          <Badge variant={entry.billable ? 'default' : 'secondary'} className="text-xs">
+                            {entry.billable ? '$' : 'Internal'}
+                          </Badge>
+                        </div>
                       </TableCell>
-                      <TableCell className="font-mono">
+                      <TableCell className="font-mono text-xs sm:text-sm font-semibold">
                         {formatDuration(entry.minutes)}
                       </TableCell>
-                      <TableCell>
-                        <Badge variant={entry.billable ? 'default' : 'secondary'}>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge variant={entry.billable ? 'default' : 'secondary'} className="text-xs">
                           {entry.billable ? 'Yes' : 'No'}
                         </Badge>
                       </TableCell>
@@ -534,16 +544,16 @@ export default function TimesheetContent() {
           <CardContent>
             <div className="space-y-4">
               {summary.projectSummary.map((project) => (
-                <div key={project.projectId} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:shadow-md hover:border-gray-300 transition-all duration-300 bg-white">
+                <div key={project.projectId} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:shadow-md hover:border-gray-300 transition-all duration-300 bg-white gap-2 sm:gap-0">
                   <div>
-                    <div className="font-medium text-gray-900">{project.projectName}</div>
-                    <div className="text-sm text-gray-500">
+                    <div className="font-medium text-gray-900 text-sm sm:text-base">{project.projectName}</div>
+                    <div className="text-xs sm:text-sm text-gray-500">
                       {project.entryCount} entr{project.entryCount !== 1 ? 'ies' : 'y'}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-semibold text-gray-900">{formatDuration(project.totalMinutes)}</div>
-                    <div className="text-sm text-green-600 font-medium">
+                  <div className="text-left sm:text-right">
+                    <div className="font-semibold text-gray-900 text-sm sm:text-base">{formatDuration(project.totalMinutes)}</div>
+                    <div className="text-xs sm:text-sm text-green-600 font-medium">
                       {formatDuration(project.billableMinutes)} billable
                     </div>
                   </div>
