@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,13 +16,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Time Tracker - Professional Time Management",
-  description: "Advanced time tracking application with concurrent timers, project management, and Excel export capabilities.",
-  keywords: ["time tracking", "project management", "timesheet", "productivity", "timer"],
-  authors: [{ name: "Time Tracker Team" }],
+  title: "Time Tracker Pro - Gamified Time Management",
+  description: "Advanced gamified time tracking with XP system, achievements, challenges, and comprehensive analytics.",
+  keywords: ["time tracking", "gamification", "productivity", "XP system", "achievements", "timer"],
+  authors: [{ name: "Time Tracker Pro Team" }],
   openGraph: {
-    title: "Time Tracker",
-    description: "Professional time management with concurrent timers and export capabilities",
+    title: "Time Tracker Pro",
+    description: "Gamified time management with XP, levels, and achievements",
     type: "website",
   },
 };
@@ -36,10 +37,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900`}
       >
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

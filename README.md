@@ -1,6 +1,6 @@
-# 🚀 Welcome to Z.ai Code Scaffold
+# 🚀 Time Tracker Pro - Gamified Time Management
 
-A modern, production-ready web application scaffold powered by cutting-edge technologies, designed to accelerate your development with [Z.ai](https://chat.z.ai)'s AI-powered coding assistance.
+A modern, production-ready time tracking application with gamification features, built with cutting-edge technologies and optimized for productivity and engagement.
 
 ## ✨ Technology Stack
 

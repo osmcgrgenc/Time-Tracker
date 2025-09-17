@@ -3,6 +3,17 @@ import { db } from '@/lib/db';
 import { z } from 'zod';
 import { sanitizeForLog } from '@/lib/validation';
 import { Prisma } from '@prisma/client';
+import { 
+  withErrorHandling, 
+  createResponse, 
+  createErrorResponse,
+  HTTP_STATUS,
+  ERROR_MESSAGES,
+  validateUser,
+  getUserIdFromRequest,
+  parseRequestBody
+} from '@/lib/api-helpers';
+import { logger } from '@/lib/logger';
 
 const createTimerSchema = z.object({
   projectId: z.string().optional(),
@@ -21,7 +32,13 @@ function computeElapsedMs(timer: any, now: Date = new Date()): number {
 }
 
 export async function GET(request: NextRequest) {
-  try {
+  const startTime = Date.now();
+  const method = 'GET';
+  const endpoint = '/api/timers';
+  
+  return withErrorHandling(async () => {
+    logger.apiRequest(method, endpoint);
+    
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const status = searchParams.get('status');
@@ -29,11 +46,11 @@ export async function GET(request: NextRequest) {
     const taskId = searchParams.get('taskId');
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
+      return createErrorResponse(ERROR_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
     }
+    
+    await validateUser(userId);
+    logger.debug('User validated', { userId });
 
     const where: Prisma.TimerWhereInput = { userId };
     
@@ -69,7 +86,7 @@ export async function GET(request: NextRequest) {
       currentElapsedMs: computeElapsedMs(timer, now),
     }));
 
-    return NextResponse.json({ 
+    const response = createResponse({
       timers: timersWithElapsed.map(timer => ({
         ...timer,
         note: timer.note ? sanitizeForLog(timer.note) : null,
@@ -84,43 +101,26 @@ export async function GET(request: NextRequest) {
         } : null
       }))
     });
-  } catch (error) {
-    console.error('Get timers error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+    
+    const duration = Date.now() - startTime;
+    logger.apiResponse(method, endpoint, HTTP_STATUS.OK, duration, userId);
+    return response;
+  });
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { projectId, taskId, note, billable } = createTimerSchema.parse(body);
-
-    // For now, we'll get userId from the request body
-    // In a real app, you'd get this from the session
-    const { userId } = body;
+  const startTime = Date.now();
+  const method = 'POST';
+  const endpoint = '/api/timers';
+  
+  return withErrorHandling(async () => {
+    logger.apiRequest(method, endpoint);
     
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
-    }
-
-    // Validate user exists
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      select: { id: true }
-    });
+    const body = await parseRequestBody(request, createTimerSchema.extend({ userId: z.string() }));
+    const { projectId, taskId, note, billable, userId } = body;
     
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
-    }
+    await validateUser(userId);
+    logger.debug('User validated for timer creation', { userId });
 
     // Validate that task belongs to project if both are provided
     if (taskId && projectId) {
@@ -129,9 +129,9 @@ export async function POST(request: NextRequest) {
       });
       
       if (!task) {
-        return NextResponse.json(
-          { error: 'Task does not belong to the specified project' },
-          { status: 400 }
+        return createErrorResponse(
+          'Task does not belong to the specified project',
+          HTTP_STATUS.BAD_REQUEST
         );
       }
     }
@@ -181,19 +181,9 @@ export async function POST(request: NextRequest) {
 
     const timer = result;
 
-    return NextResponse.json({ timer, xpGained: xpReward }, { status: 201 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: error.errors },
-        { status: 400 }
-      );
-    }
-
-    console.error('Create timer error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+    const response = createResponse({ timer, xpGained: xpReward }, HTTP_STATUS.CREATED);
+    const duration = Date.now() - startTime;
+    logger.apiResponse(method, endpoint, HTTP_STATUS.CREATED, duration, userId);
+    return response;
+  });
 }
