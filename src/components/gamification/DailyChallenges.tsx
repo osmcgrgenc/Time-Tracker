@@ -103,8 +103,8 @@ export function DailyChallenges({ userStats, onXPGain, userId }: DailyChallenges
     updateChallengeProgress();
   }, [userStats]);
 
-  const totalXP = challenges.reduce((sum, challenge) => sum + (challenge.completed ? challenge.xpReward : 0), 0);
-  const completionRate = challenges.length > 0 ? (challenges.filter(c => c.completed).length / challenges.length) * 100 : 0;
+  const totalXP = Array.isArray(challenges) ? challenges.reduce((sum, challenge) => sum + (challenge.completed ? challenge.xpReward : 0), 0) : 0;
+  const completionRate = Array.isArray(challenges) && challenges.length > 0 ? (challenges.filter(c => c.completed).length / challenges.length) * 100 : 0;
 
   return (
     <Card>
@@ -115,7 +115,7 @@ export function DailyChallenges({ userStats, onXPGain, userId }: DailyChallenges
             Daily Challenges
           </CardTitle>
           <Badge variant={completionRate === 100 ? "default" : "secondary"}>
-            {challenges.filter(c => c.completed).length}/{challenges.length}
+            {Array.isArray(challenges) ? challenges.filter(c => c.completed).length : 0}/{Array.isArray(challenges) ? challenges.length : 0}
           </Badge>
         </div>
       </CardHeader>

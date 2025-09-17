@@ -62,7 +62,7 @@ export function handleApiError(error: unknown) {
     return createErrorResponse(
       ERROR_MESSAGES.INVALID_INPUT,
       HTTP_STATUS.BAD_REQUEST,
-      error.errors
+      error.issues
     );
   }
 
@@ -88,7 +88,7 @@ export async function withErrorHandling<T>(
   try {
     return await handler();
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error) as NextResponse<T | ApiResponse>;
   }
 }
 
@@ -101,8 +101,15 @@ export async function parseRequestBody<T>(
   request: NextRequest,
   schema: z.ZodSchema<T>
 ): Promise<T> {
-  const body = await request.json();
-  return schema.parse(body);
+  try {
+    const body = await request.json();
+    return schema.parse(body);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new Error('Invalid JSON format');
+    }
+    throw error;
+  }
 }
 
 export function withRateLimit<T>(
@@ -112,7 +119,7 @@ export function withRateLimit<T>(
   return async (request: NextRequest, ...args: any[]): Promise<NextResponse<T | ApiResponse>> => {
     const rateLimitResponse = rateLimiter.check(request);
     if (rateLimitResponse) {
-      return rateLimitResponse;
+      return rateLimitResponse as NextResponse<ApiResponse | T>;
     }
     return handler(request, ...args);
   };

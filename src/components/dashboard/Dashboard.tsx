@@ -44,7 +44,7 @@ export default function Dashboard() {
   const [completeDialog, setCompleteDialog] = useState<{ open: boolean; timerId: string }>({ open: false, timerId: '' });
   const [completeDescription, setCompleteDescription] = useState('');
 
-  const filteredTasks = tasks.filter(task => selectedProject && selectedProject !== 'none' && task.projectId === selectedProject);
+  const filteredTasks = Array.isArray(tasks) ? tasks.filter(task => selectedProject && selectedProject !== 'none' && task.projectId === selectedProject) : [];
 
   const handleCreateTimer = async () => {
     const success = await createTimer({

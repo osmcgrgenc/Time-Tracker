@@ -54,8 +54,8 @@ export async function GET(request: NextRequest) {
 
     const where: Prisma.TimerWhereInput = { userId };
     
-    if (status) {
-      where.status = status;
+    if (status && ['RUNNING', 'PAUSED', 'COMPLETED', 'CANCELED'].includes(status)) {
+      where.status = status as 'RUNNING' | 'PAUSED' | 'COMPLETED' | 'CANCELED';
     }
     
     if (projectId) {
@@ -81,9 +81,12 @@ export async function GET(request: NextRequest) {
 
     // Calculate current elapsed time for running timers
     const now = new Date();
+    const nowTime = now.getTime();
     const timersWithElapsed = timers.map((timer) => ({
       ...timer,
-      currentElapsedMs: computeElapsedMs(timer, now),
+      currentElapsedMs: timer.status === 'RUNNING' 
+        ? timer.elapsedMs + (nowTime - new Date(timer.startedAt).getTime())
+        : timer.elapsedMs,
     }));
 
     const response = createResponse({

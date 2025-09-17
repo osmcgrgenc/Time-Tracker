@@ -60,11 +60,11 @@ export default function OptimizedDashboard() {
 
   // Memoized filtered tasks
   const filteredTasks = useMemo(() => 
-    tasks.filter(task => 
+    Array.isArray(tasks) ? tasks.filter(task => 
       timerForm.values.projectId && 
       timerForm.values.projectId !== 'none' && 
       task.projectId === timerForm.values.projectId
-    ), [tasks, timerForm.values.projectId]
+    ) : [], [tasks, timerForm.values.projectId]
   );
 
   // Memoized timer handlers

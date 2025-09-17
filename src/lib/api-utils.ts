@@ -7,7 +7,7 @@ export function handleApiError(error: unknown): NextResponse {
 
   if (error instanceof ZodError) {
     return NextResponse.json(
-      { error: 'Invalid input', details: error.errors },
+      { error: 'Invalid input', details: error.issues },
       { status: 400 }
     );
   }

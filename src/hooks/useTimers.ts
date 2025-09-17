@@ -20,9 +20,10 @@ export function useTimers() {
   });
 
   // Memoized calculations
-  const runningTimers = useMemo(() => timers.filter(t => t.status === 'RUNNING'), [timers]);
-  const pausedTimers = useMemo(() => timers.filter(t => t.status === 'PAUSED'), [timers]);
+  const runningTimers = useMemo(() => Array.isArray(timers) ? timers.filter(t => t.status === 'RUNNING') : [], [timers]);
+  const pausedTimers = useMemo(() => Array.isArray(timers) ? timers.filter(t => t.status === 'PAUSED') : [], [timers]);
   const completedToday = useMemo(() => {
+    if (!Array.isArray(timers)) return 0;
     const today = new Date().toDateString();
     return timers.filter(t => t.status === 'COMPLETED' && new Date(t.startedAt).toDateString() === today).length;
   }, [timers]);
@@ -42,9 +43,9 @@ export function useTimers() {
         const timersData = await timersRes.json();
         setTimers(timersData.timers);
         // Calculate user stats
-        const totalMs = timersData.timers.reduce((acc: number, timer: DashboardTimer) => acc + timer.elapsedMs, 0);
+        const totalMs = Array.isArray(timersData.timers) ? timersData.timers.reduce((acc: number, timer: DashboardTimer) => acc + timer.elapsedMs, 0) : 0;
         const totalHours = Math.floor(totalMs / 3600000);
-        const completedTasks = timersData.timers.filter((t: DashboardTimer) => t.status === 'COMPLETED').length;
+        const completedTasks = Array.isArray(timersData.timers) ? timersData.timers.filter((t: DashboardTimer) => t.status === 'COMPLETED').length : 0;
         setUserStats(prev => ({
           ...prev,
           totalHours,

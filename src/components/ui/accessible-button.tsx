@@ -1,14 +1,23 @@
 'use client';
 
 import { forwardRef } from 'react';
-import { Button, ButtonProps } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-interface AccessibleButtonProps extends ButtonProps {
-  'aria-label'?: string;
-  'aria-describedby'?: string;
+interface AccessibleButtonProps {
+  className?: string;
+  children?: React.ReactNode;
+  disabled?: boolean;
   loading?: boolean;
   loadingText?: string;
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  onClick?: () => void;
+  'aria-label'?: string;
+  'aria-describedby'?: string;
+  'aria-expanded'?: boolean;
+  'aria-controls'?: string;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 export const AccessibleButton = forwardRef<HTMLButtonElement, AccessibleButtonProps>(
