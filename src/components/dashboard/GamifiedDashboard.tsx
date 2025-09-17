@@ -20,6 +20,7 @@ import { AchievementSystem } from '@/components/gamification/AchievementSystem';
 import { DailyChallenges } from '@/components/gamification/DailyChallenges';
 import { Leaderboard } from '@/components/gamification/Leaderboard';
 import { FocusMode } from '@/components/gamification/FocusMode';
+import TimesheetContent from '@/components/timesheet/TimesheetContent';
 
 interface Timer {
   id: string;
@@ -396,8 +397,9 @@ export default function GamifiedDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="timesheet">Timesheet</TabsTrigger>
             <TabsTrigger value="focus">Focus Mode</TabsTrigger>
             <TabsTrigger value="challenges">Challenges</TabsTrigger>
             <TabsTrigger value="achievements">Achievements</TabsTrigger>
@@ -667,6 +669,10 @@ export default function GamifiedDashboard() {
                 )}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="timesheet">
+            <TimesheetContent />
           </TabsContent>
 
           <TabsContent value="focus">

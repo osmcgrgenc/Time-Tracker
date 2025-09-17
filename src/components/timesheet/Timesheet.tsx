@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Calendar, Download, Filter, RotateCcw } from 'lucide-react';
+import { Calendar, Download, Filter, RotateCcw, Clock, Target } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface TimeEntry {
@@ -228,82 +228,101 @@ export default function Timesheet() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold">Timesheet</h1>
-              <p className="text-muted-foreground">View and export your time entries</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-semibold text-gray-900">Timesheet</h1>
+                  <p className="text-sm text-gray-500">View and export your time entries</p>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" asChild>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" asChild className="text-sm">
                 <a href="/">Dashboard</a>
               </Button>
-              <Button onClick={fetchData} disabled={isLoading} variant="outline">
+              <Button onClick={fetchData} disabled={isLoading} variant="outline" className="text-sm">
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Refresh
               </Button>
-              <Button onClick={exportToExcel} disabled={isLoading || timeEntries.length === 0}>
+              <Button 
+                onClick={exportToExcel} 
+                disabled={isLoading || timeEntries.length === 0}
+                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-sm"
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Export Excel
               </Button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Summary Cards */}
         {summary && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Total Time</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatDuration(summary.totalMinutes)}</div>
-                <p className="text-xs text-muted-foreground">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-100 text-sm font-medium">Total Time</p>
+                    <p className="text-3xl font-bold">{formatDuration(summary.totalMinutes)}</p>
+                  </div>
+                  <Clock className="h-8 w-8 text-blue-200" />
+                </div>
+                <p className="text-xs text-blue-100 mt-4">
                   {summary.totalEntries} entries
                 </p>
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Billable Time</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
-                  {formatDuration(summary.billableMinutes)}
+            <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-green-100 text-sm font-medium">Billable Time</p>
+                    <p className="text-3xl font-bold">{formatDuration(summary.billableMinutes)}</p>
+                  </div>
+                  <Badge className="h-8 w-8 text-green-200 bg-green-400 rounded-full flex items-center justify-center">$</Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-green-100 mt-4">
                   {Math.round((summary.billableMinutes / summary.totalMinutes) * 100)}% of total
                 </p>
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Projects</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{summary.projectSummary.length}</div>
-                <p className="text-xs text-muted-foreground">
+            <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-purple-100 text-sm font-medium">Projects</p>
+                    <p className="text-3xl font-bold">{summary.projectSummary.length}</p>
+                  </div>
+                  <Target className="h-8 w-8 text-purple-200" />
+                </div>
+                <p className="text-xs text-purple-100 mt-4">
                   Active projects
                 </p>
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Non-billable</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-orange-600">
-                  {formatDuration(summary.totalMinutes - summary.billableMinutes)}
+            <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-orange-100 text-sm font-medium">Non-billable</p>
+                    <p className="text-3xl font-bold">{formatDuration(summary.totalMinutes - summary.billableMinutes)}</p>
+                  </div>
+                  <Clock className="h-8 w-8 text-orange-200" />
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-orange-100 mt-4">
                   Internal time
                 </p>
               </CardContent>
@@ -312,13 +331,13 @@ export default function Timesheet() {
         )}
 
         {/* Filters */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
+        <Card className="mb-8 shadow-lg border-0">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
+            <CardTitle className="flex items-center gap-2 text-gray-800">
+              <Filter className="h-5 w-5 text-blue-600" />
               Filters
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-gray-600">
               Filter your time entries by date, project, task, or billable status
             </CardDescription>
           </CardHeader>
@@ -392,7 +411,11 @@ export default function Timesheet() {
             </div>
             
             <div className="flex justify-end mt-4">
-              <Button variant="outline" onClick={clearFilters}>
+              <Button 
+                variant="outline" 
+                onClick={clearFilters}
+                className="hover:bg-blue-50 hover:border-blue-300 transition-colors"
+              >
                 Clear Filters
               </Button>
             </div>
@@ -401,16 +424,18 @@ export default function Timesheet() {
 
         {/* Bulk Actions */}
         {selectedEntries.size > 0 && (
-          <Card className="mb-6 border-destructive">
+          <Card className="mb-6 border-red-200 bg-red-50 shadow-lg">
             <CardContent className="py-4">
               <div className="flex items-center justify-between">
-                <span className="text-destructive font-medium">
+                <span className="text-red-700 font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                   {selectedEntries.size} entr{selectedEntries.size > 1 ? 'ies' : 'y'} selected
                 </span>
                 <Button 
                   variant="destructive" 
                   size="sm"
                   onClick={deleteSelectedEntries}
+                  className="bg-red-600 hover:bg-red-700"
                 >
                   Delete Selected
                 </Button>
@@ -420,10 +445,10 @@ export default function Timesheet() {
         )}
 
         {/* Time Entries Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Time Entries</CardTitle>
-            <CardDescription>
+        <Card className="shadow-lg border-0">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
+            <CardTitle className="text-gray-800">Time Entries</CardTitle>
+            <CardDescription className="text-gray-600">
               {timeEntries.length} entr{timeEntries.length !== 1 ? 'ies' : 'y'} found
             </CardDescription>
           </CardHeader>
@@ -510,26 +535,29 @@ export default function Timesheet() {
 
         {/* Project Summary */}
         {summary && summary.projectSummary.length > 0 && (
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle>Project Summary</CardTitle>
-              <CardDescription>
+          <Card className="mt-8 shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <CardTitle className="text-gray-800 flex items-center gap-2">
+                <Target className="h-5 w-5 text-purple-600" />
+                Project Summary
+              </CardTitle>
+              <CardDescription className="text-gray-600">
                 Time breakdown by project
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {summary.projectSummary.map((project) => (
-                  <div key={project.projectId} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div key={project.projectId} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:shadow-md hover:border-gray-300 transition-all duration-300 bg-white">
                     <div>
-                      <div className="font-medium">{project.projectName}</div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="font-medium text-gray-900">{project.projectName}</div>
+                      <div className="text-sm text-gray-500">
                         {project.entryCount} entr{project.entryCount !== 1 ? 'ies' : 'y'}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-semibold">{formatDuration(project.totalMinutes)}</div>
-                      <div className="text-sm text-green-600">
+                      <div className="font-semibold text-gray-900">{formatDuration(project.totalMinutes)}</div>
+                      <div className="text-sm text-green-600 font-medium">
                         {formatDuration(project.billableMinutes)} billable
                       </div>
                     </div>
