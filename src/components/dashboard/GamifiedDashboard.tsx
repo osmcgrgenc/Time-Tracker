@@ -95,6 +95,13 @@ export default function GamifiedDashboard() {
   const [completeDialog, setCompleteDialog] = useState<{ open: boolean; timerId: string }>({ open: false, timerId: '' });
   const [completeDescription, setCompleteDescription] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showCreateProject, setShowCreateProject] = useState(false);
+  const [showCreateTask, setShowCreateTask] = useState(false);
+  const [showBulkInsert, setShowBulkInsert] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [newProjectClient, setNewProjectClient] = useState('');
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [bulkEntries, setBulkEntries] = useState('');
 
   // Memoized calculations
   const runningTimers = useMemo(() => timers.filter(t => t.status === 'RUNNING'), [timers]);
@@ -356,6 +363,108 @@ export default function GamifiedDashboard() {
 
   const filteredTasks = tasks.filter(task => selectedProject && selectedProject !== 'none' && task.projectId === selectedProject);
 
+  const createProject = async () => {
+    if (!user || !newProjectName.trim()) return;
+
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          name: newProjectName,
+          client: newProjectClient,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProjects(prev => [data.project, ...prev]);
+        setSelectedProject(data.project.id);
+        setNewProjectName('');
+        setNewProjectClient('');
+        setShowCreateProject(false);
+        toast.success('🎯 Project created!');
+        handleXPGain(10);
+      } else {
+        toast.error('Failed to create project');
+      }
+    } catch (error) {
+      console.error('Error creating project:', error);
+      toast.error('Failed to create project');
+    }
+  };
+
+  const createTask = async () => {
+    if (!user || !newTaskTitle.trim() || !selectedProject) return;
+
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: selectedProject,
+          title: newTaskTitle,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTasks(prev => [data.task, ...prev]);
+        setSelectedTask(data.task.id);
+        setNewTaskTitle('');
+        setShowCreateTask(false);
+        toast.success('📋 Task created!');
+        handleXPGain(5);
+      } else {
+        toast.error('Failed to create task');
+      }
+    } catch (error) {
+      console.error('Error creating task:', error);
+      toast.error('Failed to create task');
+    }
+  };
+
+  const bulkInsertEntries = async () => {
+    if (!user || !bulkEntries.trim()) return;
+
+    try {
+      const entries = bulkEntries.split('\n').filter(line => line.trim()).map(line => {
+        const parts = line.split(',').map(p => p.trim());
+        return {
+          date: parts[0] || new Date().toISOString().split('T')[0],
+          description: parts[1] || '',
+          minutes: parseInt(parts[2]) || 60,
+          billable: parts[3]?.toLowerCase() === 'true' || false,
+          projectId: selectedProject !== 'none' ? selectedProject : undefined,
+          taskId: selectedTask !== 'none' ? selectedTask : undefined
+        };
+      });
+
+      const response = await fetch('/api/time-entries/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          entries
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setBulkEntries('');
+        setShowBulkInsert(false);
+        toast.success(`📊 ${entries.length} entries added!`);
+        handleXPGain(entries.length * 2);
+      } else {
+        toast.error('Failed to insert entries');
+      }
+    } catch (error) {
+      console.error('Error bulk inserting:', error);
+      toast.error('Failed to insert entries');
+    }
+  };
+
   if (!user) {
     return null;
   }
@@ -504,37 +613,59 @@ export default function GamifiedDashboard() {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label>Project (Optional)</Label>
-                        <Select value={selectedProject} onValueChange={setSelectedProject}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select project" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">No Project</SelectItem>
-                            {projects.map(project => (
-                              <SelectItem key={project.id} value={project.id}>
-                                {project.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="flex gap-2">
+                          <Select value={selectedProject} onValueChange={setSelectedProject}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select project" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">No Project</SelectItem>
+                              {projects.map(project => (
+                                <SelectItem key={project.id} value={project.id}>
+                                  {project.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setShowCreateProject(true)}
+                            className="shrink-0"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       
                       {selectedProject && selectedProject !== 'none' && (
                         <div className="space-y-2">
                           <Label>Task (Optional)</Label>
-                          <Select value={selectedTask} onValueChange={setSelectedTask}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select task" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">No Task</SelectItem>
-                              {filteredTasks.map(task => (
-                                <SelectItem key={task.id} value={task.id}>
-                                  {task.title}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="flex gap-2">
+                            <Select value={selectedTask} onValueChange={setSelectedTask}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select task" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">No Task</SelectItem>
+                                {filteredTasks.map(task => (
+                                  <SelectItem key={task.id} value={task.id}>
+                                    {task.title}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setShowCreateTask(true)}
+                              className="shrink-0"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       )}
                       
@@ -674,7 +805,18 @@ export default function GamifiedDashboard() {
           </TabsContent>
 
           <TabsContent value="timesheet">
-            <TimesheetContent />
+            <div className="space-y-4">
+              <div className="flex justify-end">
+                <Button
+                  onClick={() => setShowBulkInsert(true)}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Bulk Insert
+                </Button>
+              </div>
+              <TimesheetContent />
+            </div>
           </TabsContent>
 
           <TabsContent value="focus">
@@ -743,6 +885,119 @@ export default function GamifiedDashboard() {
               <Button onClick={() => completeTimer(completeDialog.timerId)} className="bg-green-600 hover:bg-green-700">
                 <Trophy className="h-4 w-4 mr-2" />
                 Complete (+15 XP)
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Project Dialog */}
+      <Dialog open={showCreateProject} onOpenChange={setShowCreateProject}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Project</DialogTitle>
+            <DialogDescription>
+              Add a new project to organize your time tracking
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="projectName">Project Name</Label>
+              <Input
+                id="projectName"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                placeholder="Enter project name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="projectClient">Client (Optional)</Label>
+              <Input
+                id="projectClient"
+                value={newProjectClient}
+                onChange={(e) => setNewProjectClient(e.target.value)}
+                placeholder="Enter client name"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowCreateProject(false)}>
+                Cancel
+              </Button>
+              <Button onClick={createProject} disabled={!newProjectName.trim()}>
+                <Target className="h-4 w-4 mr-2" />
+                Create (+10 XP)
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Task Dialog */}
+      <Dialog open={showCreateTask} onOpenChange={setShowCreateTask}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Task</DialogTitle>
+            <DialogDescription>
+              Add a new task to the selected project
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="taskTitle">Task Title</Label>
+              <Input
+                id="taskTitle"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                placeholder="Enter task title"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowCreateTask(false)}>
+                Cancel
+              </Button>
+              <Button onClick={createTask} disabled={!newTaskTitle.trim()}>
+                <Check className="h-4 w-4 mr-2" />
+                Create (+5 XP)
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Insert Dialog */}
+      <Dialog open={showBulkInsert} onOpenChange={setShowBulkInsert}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Bulk Insert Time Entries</DialogTitle>
+            <DialogDescription>
+              Add multiple time entries at once. Format: Date, Description, Minutes, Billable
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="bulkEntries">Time Entries (CSV Format)</Label>
+              <Textarea
+                id="bulkEntries"
+                value={bulkEntries}
+                onChange={(e) => setBulkEntries(e.target.value)}
+                placeholder={`2024-01-15, Website development, 120, true
+2024-01-15, Code review, 60, false
+2024-01-16, Client meeting, 90, true`}
+                rows={8}
+                className="font-mono text-sm"
+              />
+            </div>
+            <div className="text-sm text-gray-600">
+              <p><strong>Format:</strong> Date (YYYY-MM-DD), Description, Minutes, Billable (true/false)</p>
+              <p><strong>Project/Task:</strong> Will use currently selected project and task</p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowBulkInsert(false)}>
+                Cancel
+              </Button>
+              <Button onClick={bulkInsertEntries} disabled={!bulkEntries.trim()}>
+                <Plus className="h-4 w-4 mr-2" />
+                Insert Entries
               </Button>
             </div>
           </div>
