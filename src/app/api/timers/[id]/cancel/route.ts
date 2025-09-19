@@ -8,10 +8,10 @@ const cancelTimerSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const timerId = params.id;
+    const { id: timerId } = await params;
     const { userId } = cancelTimerSchema.parse(await request.json());
 
     // Get the current timer
@@ -34,11 +34,11 @@ export async function POST(
     }
 
     const now = new Date();
-    let finalElapsedMs = timer.elapsedMs;
+    let finalElapsedTime = timer.elapsedTime;
 
     // If timer is running, add the current session time
     if (timer.status === 'RUNNING') {
-      finalElapsedMs += now.getTime() - new Date(timer.startedAt).getTime();
+      finalElapsedTime += Math.floor((now.getTime() - new Date(timer.startTime).getTime()) / 1000);
     }
 
     // Update timer to canceled state
@@ -46,15 +46,15 @@ export async function POST(
       where: { id: timerId },
       data: {
         status: 'CANCELED',
-        elapsedMs: finalElapsedMs,
-        completedAt: now,
+        elapsedTime: finalElapsedTime,
+        endTime: now,
       },
       include: {
         project: {
           select: { id: true, name: true, client: true },
         },
         task: {
-          select: { id: true, title: true, status: true },
+          select: { id: true, title: true, completed: true },
         },
       },
     });
@@ -63,7 +63,7 @@ export async function POST(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid input', details: error.errors },
+        { error: 'Invalid input', details: error.issues },
         { status: 400 }
       );
     }

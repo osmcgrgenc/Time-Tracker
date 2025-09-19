@@ -1,98 +1,75 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { withAuth } from '@/lib/auth-middleware';
+import { withCache, CacheConfigs, CacheInvalidator } from '@/lib/middleware/cacheMiddleware';
+import { ProjectService } from '@/lib/services/ProjectService';
+import { parsePaginationParams, createPaginatedResponse } from '@/lib/utils/pagination';
 import { z } from 'zod';
 
 const createProjectSchema = z.object({
   name: z.string().min(1),
   client: z.string().optional().transform(val => val === '' ? undefined : val),
-  userId: z.string(),
+  description: z.string().optional(),
+  color: z.string().optional(),
 });
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const query = searchParams.get('query');
+const projectService = new ProjectService();
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
-    }
+const getProjectsHandler = async (request: NextRequest, { userId }: { userId: string }) => {
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.get('query');
+  const archived = searchParams.get('archived') === 'true';
+  
+  // Parse pagination parameters
+  const paginationParams = parsePaginationParams(searchParams);
+  
+  const filters = {
+    ...(query && { query }),
+    archived,
+  };
 
-    const where: any = { ownerId: userId };
-    
-    if (query) {
-      where.OR = [
-        { name: { contains: query, mode: 'insensitive' } },
-        { client: { contains: query, mode: 'insensitive' } },
-      ];
-    }
+  const result = await projectService.getProjects(userId, filters, paginationParams);
 
-    const projects = await db.project.findMany({
-      where,
-      include: {
-        tasks: {
-          select: { id: true, title: true, status: true },
-        },
-        _count: {
-          select: {
-            timers: true,
-            timeEntries: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return NextResponse.json({ projects });
-  } catch (error) {
-    console.error('Get projects error:', error);
+  if (!result.success) {
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: result.error || 'Failed to fetch projects' },
+      { status: 400 }
     );
   }
-}
 
-export async function POST(request: NextRequest) {
+  return NextResponse.json({ data: result.data });
+};
+
+export const GET = withAuth(async (request: NextRequest, context: { userId: string }) => {
+  return getProjectsHandler(request, context);
+});
+
+
+export const POST = withAuth(async (request: NextRequest, { userId }: { userId: string }) => {
   try {
     const body = await request.json();
-    const { name, client, userId } = createProjectSchema.parse(body);
+    const validatedData = createProjectSchema.parse(body);
 
-    const project = await db.project.create({
-      data: {
-        name,
-        client: client || undefined,
-        ownerId: userId,
-      },
-      include: {
-        tasks: {
-          select: { id: true, title: true, status: true },
-        },
-        _count: {
-          select: {
-            timers: true,
-            timeEntries: true,
-          },
-        },
-      },
+    const result = await projectService.createProject({
+      ...validatedData,
+      userId
     });
 
-    return NextResponse.json({ project }, { status: 201 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (!result.success) {
       return NextResponse.json(
-        { error: 'Invalid input', details: error.errors },
-        { status: 400 }
+        { error: result.error || 'Failed to create project' },
+        { status: 500 }
       );
     }
 
-    console.error('Create project error:', error);
+    // Invalidate projects cache after creating new project
+    CacheInvalidator.invalidateProjects(userId);
+
+    return NextResponse.json({ data: result.data }, { status: 201 });
+  } catch (error) {
+    console.error('Error creating project:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
-}
+});

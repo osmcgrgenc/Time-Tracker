@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
         name: true,
         email: true,
         level: true,
-        xp: true,
+        totalXP: true,
         _count: {
           select: {
             timers: {
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
         id: user.id,
         name: sanitizeForLog(user.name || user.email.split('@')[0]),
         level: user.level || 1,
-        xp: user.xp || 0,
+        xp: user.totalXP || 0,
         totalHours,
         completedTasks,
         streak

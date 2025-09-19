@@ -55,7 +55,6 @@ export async function GET(request: NextRequest) {
       include: {
         timer: {
           select: {
-            note: true,
             project: {
               select: {
                 name: true,

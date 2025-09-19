@@ -29,7 +29,7 @@ async function getTimerWithValidation(timerId: string, userId: string) {
     where: { id: timerId },
     include: {
       project: { select: { id: true, name: true, client: true } },
-      task: { select: { id: true, title: true, status: true } },
+      task: { select: { id: true, title: true, completed: true } },
     },
   });
 
@@ -50,18 +50,19 @@ export async function pauseTimer(request: NextRequest, { params }: { params: { i
     }
 
     const now = new Date();
-    const elapsedMs = timer.elapsedMs + (now.getTime() - timer.startedAt.getTime());
+    const sessionTime = Math.floor((now.getTime() - timer.startTime.getTime()) / 1000);
+    const elapsedTime = timer.elapsedTime + sessionTime;
 
     const updatedTimer = await db.timer.update({
       where: { id: params.id },
       data: {
         status: 'PAUSED',
         pausedAt: now,
-        elapsedMs,
+        elapsedTime,
       },
       include: {
         project: { select: { id: true, name: true, client: true } },
-        task: { select: { id: true, title: true, status: true } },
+        task: { select: { id: true, title: true, completed: true } },
       },
     });
 
@@ -82,12 +83,12 @@ export async function resumeTimer(request: NextRequest, { params }: { params: { 
       where: { id: params.id },
       data: {
         status: 'RUNNING',
-        startedAt: new Date(),
+        startTime: new Date(),
         pausedAt: null,
       },
       include: {
         project: { select: { id: true, name: true, client: true } },
-        task: { select: { id: true, title: true, status: true } },
+        task: { select: { id: true, title: true, completed: true } },
       },
     });
 
@@ -106,10 +107,11 @@ export async function completeTimer(request: NextRequest, { params }: { params: 
 
     const xpReward = 15;
     const now = new Date();
-    let finalElapsedMs = timer.elapsedMs;
+    let finalElapsedTime = timer.elapsedTime;
 
     if (timer.status === 'RUNNING') {
-      finalElapsedMs += now.getTime() - timer.startedAt.getTime();
+      const sessionTime = Math.floor((now.getTime() - timer.startTime.getTime()) / 1000);
+      finalElapsedTime += sessionTime;
     }
 
     const result = await db.$transaction(async (tx) => {
@@ -117,19 +119,19 @@ export async function completeTimer(request: NextRequest, { params }: { params: 
         where: { id: params.id },
         data: {
           status: 'COMPLETED',
-          completedAt: now,
-          elapsedMs: finalElapsedMs,
-          note: description || timer.note,
+          endTime: now,
+          elapsedTime: finalElapsedTime,
+          description: description || timer.description,
         },
         include: {
           project: { select: { id: true, name: true, client: true } },
-          task: { select: { id: true, title: true, status: true } },
+          task: { select: { id: true, title: true, completed: true } },
         },
       });
 
       await tx.user.update({
         where: { id: userId },
-        data: { xp: { increment: xpReward } }
+        data: { totalXP: { increment: xpReward } }
       });
 
       await tx.xPHistory.create({
@@ -137,7 +139,7 @@ export async function completeTimer(request: NextRequest, { params }: { params: 
           userId,
           action: 'TIMER_COMPLETED',
           xpEarned: xpReward,
-          description: `Completed timer: ${sanitizeForLog(description || timer.note || 'Untitled')}`,
+          description: `Completed timer: ${sanitizeForLog(description || timer.description || 'Untitled')}`,
           timerId: params.id,
         }
       });
@@ -163,7 +165,7 @@ export async function cancelTimer(request: NextRequest, { params }: { params: { 
       data: { status: 'CANCELED' },
       include: {
         project: { select: { id: true, name: true, client: true } },
-        task: { select: { id: true, title: true, status: true } },
+        task: { select: { id: true, title: true, completed: true } },
       },
     });
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { validateUserId } from '@/lib/validation';
+import { getServerSession } from 'next-auth';
 
 function calculateStreak(dates: string[]): number {
   if (dates.length === 0) return 0;
@@ -28,20 +28,33 @@ function calculateTodayStats(timeEntries: any[], timers: any[]) {
   const todayEntries = timeEntries.filter(entry => entry.date.toDateString() === today);
   const todayMinutes = todayEntries.reduce((sum, entry) => sum + entry.minutes, 0);
   const todayHours = Math.floor(todayMinutes / 60);
-  const todayTasks = timers.filter(timer => new Date(timer.startedAt).toDateString() === today).length;
+  const todayTasks = timers.filter(timer => new Date(timer.startTime).toDateString() === today).length;
   
   return { todayHours, todayTasks };
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
-    const userId = validateUserId(params.id);
+    const session = await getServerSession();
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    const userId = session.user.id;
+  // For user stats, we can either use the authenticated userId or the params.id
+  // For security, we'll use the authenticated userId
+  const targetUserId = userId;
 
     const user = await db.user.findUnique({
-      where: { id: userId },
+      where: { id: targetUserId },
       include: {
         timeEntries: {
           select: {
@@ -51,7 +64,7 @@ export async function GET(
         },
         timers: {
           where: { status: 'COMPLETED' },
-          select: { id: true, startedAt: true }
+          select: { id: true, startTime: true }
         }
       }
     });
@@ -78,14 +91,14 @@ export async function GET(
     const streak = calculateStreak(uniqueDates);
 
     // Calculate level based on XP
-    const currentXP = user.xp || 0;
+    const currentXP = user.totalXP || 0;
     const level = Math.floor(currentXP / 100) + 1;
     const xpToNext = 100 - (currentXP % 100);
 
     // Update user level if changed
     if (user.level !== level) {
       await db.user.update({
-        where: { id: userId },
+        where: { id: targetUserId },
         data: { level }
       });
     }
@@ -104,7 +117,7 @@ export async function GET(
 
     return NextResponse.json({ stats });
   } catch (error) {
-    console.error('Get user stats error:', error);
+    console.error('Stats API error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

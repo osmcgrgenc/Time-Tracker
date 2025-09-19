@@ -27,14 +27,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password
-    const passwordHash = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user
     const user = await db.user.create({
       data: {
         email,
         name,
-        passwordHash,
+        hashedPassword: hashedPassword,
       },
       select: {
         id: true,

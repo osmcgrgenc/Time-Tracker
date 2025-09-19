@@ -8,7 +8,8 @@ const createTaskSchema = z.object({
   projectId: z.string(),
   title: z.string().min(1),
   description: z.string().optional(),
-  status: z.string().optional(),
+  completed: z.boolean().optional(),
+  priority: z.string().optional(),
   assigneeId: z.string().optional(),
 });
 
@@ -26,29 +27,34 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const where: Prisma.TaskWhereInput = {};
+    let where: Prisma.TaskWhereInput = {};
     
-    // Filter by user's projects or assigned tasks
-    where.OR = [
-      { project: { ownerId: userId } },
-      { assigneeId: userId },
-    ];
+    // Base filter for user's projects or assigned tasks
+    const userFilter: Prisma.TaskWhereInput = {
+      OR: [
+        { project: { ownerId: userId } },
+        { assigneeId: userId },
+      ],
+    };
     
     if (projectId) {
       where.projectId = projectId;
     }
     
     if (query) {
+      // Combine user filter with search query
       where.AND = [
-        where.OR,
+        userFilter,
         {
           OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } },
+            { title: { contains: query } },
+            { description: { contains: query } },
           ],
         },
       ];
-      delete where.OR;
+    } else {
+      // Use user filter directly when no search query
+      where = { ...where, ...userFilter };
     }
 
     const tasks = await db.task.findMany({
@@ -83,7 +89,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, projectId, title, description, status, assigneeId } = createTaskSchema.parse(body);
+    const { userId, projectId, title, description, completed, priority, assigneeId } = createTaskSchema.parse(body);
 
     // Verify project exists and user has access
     const project = await db.project.findFirst({
@@ -105,7 +111,8 @@ export async function POST(request: NextRequest) {
         projectId,
         title,
         description,
-        status,
+        completed,
+        priority,
         assigneeId,
       },
       include: {
@@ -128,7 +135,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid input', details: error.errors },
+        { error: 'Invalid input', details: error.issues },
         { status: 400 }
       );
     }

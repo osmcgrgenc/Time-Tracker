@@ -1,8 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { sanitizeForLog } from '@/lib/validation';
-import { Prisma } from '@prisma/client';
+import { db } from '@/lib/db';
 import { 
   withErrorHandling, 
   createResponse, 
@@ -13,180 +11,146 @@ import {
   getUserIdFromRequest,
   parseRequestBody
 } from '@/lib/api-helpers';
-import { logger } from '@/lib/logger';
+import { sanitizeForLog } from '@/lib/validation';
+import { TimerResponse } from '@/types/api';
 
 const createTimerSchema = z.object({
   projectId: z.string().optional(),
   taskId: z.string().optional(),
-  note: z.string().optional(),
   billable: z.boolean().default(false),
+  userId: z.string(),
 });
 
-// Helper function to compute elapsed time
+const querySchema = z.object({
+  status: z.enum(['RUNNING', 'PAUSED', 'COMPLETED', 'CANCELED']).optional(),
+  projectId: z.string().optional(),
+  taskId: z.string().optional(),
+  limit: z.coerce.number().min(1).max(100).default(50),
+  offset: z.coerce.number().min(0).default(0),
+});
+
 function computeElapsedMs(timer: any, now: Date = new Date()): number {
   const base = timer.elapsedMs;
   if (timer.status === 'RUNNING') {
-    return base + (now.getTime() - new Date(timer.startedAt).getTime());
+    return base + (now.getTime() - new Date(timer.startTime).getTime());
   }
   return base;
 }
 
-export async function GET(request: NextRequest) {
-  const startTime = Date.now();
-  const method = 'GET';
-  const endpoint = '/api/timers';
-  
-  return withErrorHandling(async () => {
-    logger.apiRequest(method, endpoint);
-    
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const status = searchParams.get('status');
-    const projectId = searchParams.get('projectId');
-    const taskId = searchParams.get('taskId');
+function formatTimerResponse(timer: any): TimerResponse {
+  return {
+    id: timer.id,
+    status: timer.status,
+    billable: timer.billable,
+    startedAt: timer.startTime.toISOString(),
+    elapsedMs: timer.elapsedMs,
+    currentElapsedMs: computeElapsedMs(timer),
+    project: timer.project ? {
+      id: timer.project.id,
+      name: sanitizeForLog(timer.project.name),
+      client: timer.project.client ? sanitizeForLog(timer.project.client) : undefined,
+    } : undefined,
+    task: timer.task ? {
+      id: timer.task.id,
+      title: sanitizeForLog(timer.task.title),
+    } : undefined,
+  };
+}
 
-    if (!userId) {
-      return createErrorResponse(ERROR_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
-    }
-    
-    await validateUser(userId);
-    logger.debug('User validated', { userId });
+export const GET = withErrorHandling(async (request: NextRequest) => {
+  const userId = getUserIdFromRequest(request);
+  if (!userId) {
+    return createErrorResponse(ERROR_MESSAGES.UNAUTHORIZED, HTTP_STATUS.UNAUTHORIZED);
+  }
 
-    const where: Prisma.TimerWhereInput = { userId };
-    
-    if (status && ['RUNNING', 'PAUSED', 'COMPLETED', 'CANCELED'].includes(status)) {
-      where.status = status as 'RUNNING' | 'PAUSED' | 'COMPLETED' | 'CANCELED';
-    }
-    
-    if (projectId) {
-      where.projectId = projectId;
-    }
-    
-    if (taskId) {
-      where.taskId = taskId;
-    }
+  await validateUser(userId);
 
-    const timers = await db.timer.findMany({
+  const { searchParams } = new URL(request.url);
+  const query = querySchema.parse(Object.fromEntries(searchParams));
+
+  const where: any = { userId };
+  if (query.status) where.status = query.status;
+  if (query.projectId) where.projectId = query.projectId;
+  if (query.taskId) where.taskId = query.taskId;
+
+  const [timers, total] = await Promise.all([
+    db.timer.findMany({
       where,
       include: {
-        project: {
-          select: { id: true, name: true, client: true },
-        },
-        task: {
-          select: { id: true, title: true, status: true },
-        },
+        project: { select: { id: true, name: true, client: true } },
+        task: { select: { id: true, title: true } },
       },
       orderBy: { createdAt: 'desc' },
-    });
+      take: query.limit,
+      skip: query.offset,
+    }),
+    db.timer.count({ where })
+  ]);
 
-    // Calculate current elapsed time for running timers
-    const now = new Date();
-    const nowTime = now.getTime();
-    const timersWithElapsed = timers.map((timer) => ({
-      ...timer,
-      currentElapsedMs: timer.status === 'RUNNING' 
-        ? timer.elapsedMs + (nowTime - new Date(timer.startedAt).getTime())
-        : timer.elapsedMs,
-    }));
+  const formattedTimers = timers.map(formatTimerResponse);
 
-    const response = createResponse({
-      timers: timersWithElapsed.map(timer => ({
-        ...timer,
-        note: timer.note ? sanitizeForLog(timer.note) : null,
-        project: timer.project ? {
-          ...timer.project,
-          name: sanitizeForLog(timer.project.name),
-          client: timer.project.client ? sanitizeForLog(timer.project.client) : null
-        } : null,
-        task: timer.task ? {
-          ...timer.task,
-          title: sanitizeForLog(timer.task.title)
-        } : null
-      }))
-    });
-    
-    const duration = Date.now() - startTime;
-    logger.apiResponse(method, endpoint, HTTP_STATUS.OK, duration, userId);
-    return response;
+  return createResponse({
+    timers: formattedTimers,
+    meta: { total, limit: query.limit, offset: query.offset }
   });
-}
+});
 
-export async function POST(request: NextRequest) {
-  const startTime = Date.now();
-  const method = 'POST';
-  const endpoint = '/api/timers';
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  const data = await parseRequestBody(request, createTimerSchema);
   
-  return withErrorHandling(async () => {
-    logger.apiRequest(method, endpoint);
-    
-    const body = await parseRequestBody(request, createTimerSchema.extend({ userId: z.string() }));
-    const { projectId, taskId, note, billable, userId } = body;
-    
-    await validateUser(userId);
-    logger.debug('User validated for timer creation', { userId });
+  await validateUser(data.userId);
 
-    // Validate that task belongs to project if both are provided
-    if (taskId && projectId) {
-      const task = await db.task.findFirst({
-        where: { id: taskId, projectId },
-      });
-      
-      if (!task) {
-        return createErrorResponse(
-          'Task does not belong to the specified project',
-          HTTP_STATUS.BAD_REQUEST
-        );
-      }
+  // Validate task-project relationship
+  if (data.taskId && data.projectId) {
+    const task = await db.task.findFirst({
+      where: { id: data.taskId, projectId: data.projectId },
+    });
+    
+    if (!task) {
+      return createErrorResponse(
+        'Task does not belong to the specified project',
+        HTTP_STATUS.BAD_REQUEST
+      );
     }
+  }
 
-    // Create timer and award XP in single transaction
-    const xpReward = 5;
-    const result = await db.$transaction(async (tx) => {
-      const timer = await tx.timer.create({
-        data: {
-          userId,
-          projectId,
-          taskId,
-          note,
-          billable,
-          startedAt: new Date(),
-          status: 'RUNNING',
-        },
-        include: {
-          project: {
-            select: { id: true, name: true, client: true },
-          },
-          task: {
-            select: { id: true, title: true, status: true },
-          },
-        },
-      });
-
-      await tx.user.update({
-        where: { id: userId },
-        data: {
-          xp: { increment: xpReward }
-        }
-      });
-
-      await tx.xPHistory.create({
-        data: {
-          userId,
-          action: 'TIMER_STARTED',
-          xpEarned: xpReward,
-          description: `Started timer: ${sanitizeForLog(note || 'Untitled')}`,
-          timerId: timer.id,
-        }
-      });
-
-      return timer;
+  const xpReward = 5;
+  const timer = await db.$transaction(async (tx) => {
+    const newTimer = await tx.timer.create({
+      data: {
+        userId: data.userId,
+        projectId: data.projectId,
+        taskId: data.taskId,
+        billable: data.billable,
+        startTime: new Date(),
+        status: 'RUNNING',
+      },
+      include: {
+        project: { select: { id: true, name: true, client: true } },
+        task: { select: { id: true, title: true } },
+      },
     });
 
-    const timer = result;
+    await tx.user.update({
+      where: { id: data.userId },
+      data: { totalXP: { increment: xpReward } }
+    });
 
-    const response = createResponse({ timer, xpGained: xpReward }, HTTP_STATUS.CREATED);
-    const duration = Date.now() - startTime;
-    logger.apiResponse(method, endpoint, HTTP_STATUS.CREATED, duration, userId);
-    return response;
+    await tx.xPHistory.create({
+      data: {
+        userId: data.userId,
+        action: 'TIMER_STARTED',
+        xpEarned: xpReward,
+        description: 'Started timer',
+        timerId: newTimer.id,
+      }
+    });
+
+    return newTimer;
   });
-}
+
+  return createResponse({
+    timer: formatTimerResponse(timer),
+    xpGained: xpReward
+  }, HTTP_STATUS.CREATED);
+});

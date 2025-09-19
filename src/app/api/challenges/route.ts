@@ -125,7 +125,7 @@ export async function PUT(request: NextRequest) {
       await db.user.update({
         where: { id: userId },
         data: {
-          xp: { increment: challenge.xpReward }
+          totalXP: { increment: challenge.xpReward }
         }
       });
     }
@@ -134,7 +134,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid input', details: error.errors },
+        { error: 'Invalid input', details: error.issues },
         { status: 400 }
       );
     }

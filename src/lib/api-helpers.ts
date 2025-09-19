@@ -12,6 +12,7 @@ export const HTTP_STATUS = {
   CONFLICT: 409,
   TOO_MANY_REQUESTS: 429,
   INTERNAL_ERROR: 500,
+  INTERNAL_SERVER_ERROR: 500
 } as const;
 
 export const ERROR_MESSAGES = {
@@ -21,6 +22,7 @@ export const ERROR_MESSAGES = {
   FORBIDDEN: 'Access denied',
   INTERNAL_ERROR: 'Internal server error',
   RESOURCE_NOT_FOUND: 'Resource not found',
+  INTERNAL_SERVER_ERROR: 'Internal server error',
 } as const;
 
 export interface ApiResponse<T = any> {
@@ -82,14 +84,17 @@ export function handleApiError(error: unknown) {
   return createErrorResponse(ERROR_MESSAGES.INTERNAL_ERROR, HTTP_STATUS.INTERNAL_ERROR);
 }
 
-export async function withErrorHandling<T>(
-  handler: () => Promise<NextResponse<T>>
-): Promise<NextResponse<T | ApiResponse>> {
-  try {
-    return await handler();
-  } catch (error) {
-    return handleApiError(error) as NextResponse<T | ApiResponse>;
-  }
+export function withErrorHandling<T>(
+  handler: (request: NextRequest, context: any, ...args: any[]) => Promise<NextResponse<T>>
+) {
+  return async (request: NextRequest, context: any, ...args: any[]): Promise<NextResponse<T | ApiResponse>> => {
+    try {
+      const result = await handler(request, context, ...args);
+      return result;
+    } catch (error) {
+      return handleApiError(error) as NextResponse<ApiResponse>;
+    }
+  };
 }
 
 export function getUserIdFromRequest(request: NextRequest): string | null {

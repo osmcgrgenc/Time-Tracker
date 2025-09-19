@@ -1,6 +1,7 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ERROR_MESSAGES } from '@/lib/api-helpers';
+import { getServerSession } from 'next-auth';
 
 export async function validateResourceOwnership(
   userId: string,
@@ -54,4 +55,29 @@ export async function requireResourceOwnership(
   if (!hasAccess) {
     throw new Error(ERROR_MESSAGES.FORBIDDEN);
   }
+}
+
+export function withAuth<T extends any[]>(
+  handler: (request: NextRequest, context: { userId: string }, ...args: T) => Promise<NextResponse>
+) {
+  return async (request: NextRequest, ...args: T): Promise<NextResponse> => {
+    try {
+      const session = await getServerSession();
+      
+      if (!session?.user?.id) {
+        return NextResponse.json(
+          { error: ERROR_MESSAGES.UNAUTHORIZED },
+          { status: 401 }
+        );
+      }
+
+      return handler(request, { userId: session.user.id }, ...args);
+    } catch (error) {
+      console.error('Auth middleware error:', error);
+      return NextResponse.json(
+        { error: ERROR_MESSAGES.INTERNAL_ERROR },
+        { status: 500 }
+      );
+    }
+  };
 }

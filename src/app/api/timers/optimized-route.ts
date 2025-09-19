@@ -17,7 +17,6 @@ import { TimerResponse } from '@/types/api';
 const createTimerSchema = z.object({
   projectId: z.string().optional(),
   taskId: z.string().optional(),
-  note: z.string().optional(),
   billable: z.boolean().default(false),
   userId: z.string(),
 });
@@ -33,7 +32,7 @@ const querySchema = z.object({
 function computeElapsedMs(timer: any, now: Date = new Date()): number {
   const base = timer.elapsedMs;
   if (timer.status === 'RUNNING') {
-    return base + (now.getTime() - new Date(timer.startedAt).getTime());
+    return base + (now.getTime() - new Date(timer.startTime).getTime());
   }
   return base;
 }
@@ -42,9 +41,8 @@ function formatTimerResponse(timer: any): TimerResponse {
   return {
     id: timer.id,
     status: timer.status,
-    note: timer.note ? sanitizeForLog(timer.note) : undefined,
     billable: timer.billable,
-    startedAt: timer.startedAt.toISOString(),
+    startedAt: timer.startTime.toISOString(),
     elapsedMs: timer.elapsedMs,
     currentElapsedMs: computeElapsedMs(timer),
     project: timer.project ? {
@@ -55,7 +53,6 @@ function formatTimerResponse(timer: any): TimerResponse {
     task: timer.task ? {
       id: timer.task.id,
       title: sanitizeForLog(timer.task.title),
-      status: timer.task.status,
     } : undefined,
   };
 }
@@ -82,7 +79,7 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           project: { select: { id: true, name: true, client: true } },
-          task: { select: { id: true, title: true, status: true } },
+          task: { select: { id: true, title: true } },
         },
         orderBy: { createdAt: 'desc' },
         take: query.limit,
@@ -127,20 +124,19 @@ export async function POST(request: NextRequest) {
           userId: data.userId,
           projectId: data.projectId,
           taskId: data.taskId,
-          note: data.note,
           billable: data.billable,
-          startedAt: new Date(),
           status: 'RUNNING',
+          startTime: new Date(),
         },
         include: {
           project: { select: { id: true, name: true, client: true } },
-          task: { select: { id: true, title: true, status: true } },
+          task: { select: { id: true, title: true } },
         },
       });
 
       await tx.user.update({
         where: { id: data.userId },
-        data: { xp: { increment: xpReward } }
+        data: { totalXP: { increment: xpReward } }
       });
 
       await tx.xPHistory.create({
@@ -148,7 +144,7 @@ export async function POST(request: NextRequest) {
           userId: data.userId,
           action: 'TIMER_STARTED',
           xpEarned: xpReward,
-          description: `Started timer: ${sanitizeForLog(data.note || 'Untitled')}`,
+          description: 'Started timer',
           timerId: newTimer.id,
         }
       });

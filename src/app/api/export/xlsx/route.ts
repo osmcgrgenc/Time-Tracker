@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
 import { z } from 'zod';
 import * as XLSX from 'xlsx';
 import { validateDateString } from '@/lib/validation';
 import { Prisma } from '@prisma/client';
+import { db } from '@/lib/db';
 
 const exportSchema = z.object({
   userId: z.string(),
@@ -36,9 +36,9 @@ export async function POST(request: NextRequest) {
     }
     
     if (to) {
-      where.date = { 
-        ...where.date,
-        lte: validateDateString(to) 
+      where.date = {
+        ...(where.date as Prisma.DateTimeFilter || {}),
+        lte: validateDateString(to)
       };
     }
     
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
           select: { id: true, name: true, client: true },
         },
         task: {
-          select: { id: true, title: true, status: true },
+          select: { id: true, title: true, completed: true },
         },
       },
       orderBy: { date: 'desc' },
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid input', details: error.errors },
+        { error: 'Invalid input', details: error.issues },
         { status: 400 }
       );
     }
@@ -193,7 +193,7 @@ function generateSummaryData(timeEntries: TimeEntry[], groupBy: string[]): Group
     return acc;
   }, {});
 
-  return Object.values(grouped).map((group: GroupSummary) => ({
+  return Object.values(grouped as Record<string, GroupSummary>).map((group) => ({
     ...group,
     'Total Hours': Math.round(group['Total Hours'] * 100) / 100,
     'Billable Hours': Math.round(group['Billable Hours'] * 100) / 100,

@@ -14,10 +14,17 @@ import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Square, Check, Plus, Clock, Trophy, Target, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTimers } from '@/hooks/useTimers';
+import { 
+  XPHistoryWithSuspense,
+  MonitoringDashboardWithSuspense,
+  useComponentPreloader 
+} from '@/components/LazyComponents';
+import { Navigation } from './Navigation';
 import XPHistory from './XPHistory';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const { preloadOnHover } = useComponentPreloader();
   const {
     timers,
     projects,
@@ -36,6 +43,7 @@ export default function Dashboard() {
     getXPProgress,
   } = useTimers();
 
+  const [activeView, setActiveView] = useState<'dashboard' | 'timesheet' | 'monitoring'>('dashboard');
   const [selectedProject, setSelectedProject] = useState<string>('');
   const [selectedTask, setSelectedTask] = useState<string>('');
   const [newTimerNote, setNewTimerNote] = useState('');
@@ -77,6 +85,10 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navigation 
+        activeView={activeView}
+        onViewChange={setActiveView}
+      />
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -111,7 +123,16 @@ export default function Dashboard() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
+        {activeView === 'monitoring' ? (
+          <MonitoringDashboardWithSuspense />
+        ) : activeView === 'timesheet' ? (
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-bold mb-4">Timesheet View</h2>
+            <p className="text-gray-600">Timesheet functionality coming soon...</p>
+          </div>
+        ) : (
+          <>
+          {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:shadow-xl transition-all duration-300 transform hover:scale-105">
             <CardContent className="p-6">
@@ -424,6 +445,8 @@ export default function Dashboard() {
 
         {/* XP History */}
         <XPHistory />
+          </>
+        )}
       </main>
 
       {/* Complete Timer Dialog */}

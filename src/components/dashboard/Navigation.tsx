@@ -2,12 +2,13 @@
 
 import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, FileText, Trophy, Target } from 'lucide-react';
+import { LayoutDashboard, FileText, Trophy, Target, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useComponentPreloader } from '@/components/LazyComponents';
 
 interface NavigationProps {
-  activeView: 'dashboard' | 'timesheet';
-  onViewChange: (view: 'dashboard' | 'timesheet') => void;
+  activeView: 'dashboard' | 'timesheet' | 'monitoring';
+  onViewChange: (view: 'dashboard' | 'timesheet' | 'monitoring') => void;
   userStats?: {
     level: number;
     xp: number;
@@ -16,6 +17,8 @@ interface NavigationProps {
 }
 
 export function Navigation({ activeView, onViewChange, userStats }: NavigationProps) {
+  const { preloadOnHover } = useComponentPreloader();
+  
   const buttonClasses = useMemo(() => ({
     base: "relative flex items-center gap-3 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500/50",
     active: "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/25",
@@ -55,6 +58,17 @@ export function Navigation({ activeView, onViewChange, userStats }: NavigationPr
             >
               <FileText className="h-4 w-4" />
               Timesheet
+            </Button>
+            <Button
+              onClick={() => onViewChange('monitoring')}
+              className={cn(
+                buttonClasses.base,
+                activeView === 'monitoring' ? buttonClasses.active : buttonClasses.inactive
+              )}
+              {...preloadOnHover('monitoringDashboard')}
+            >
+              <Activity className="h-4 w-4" />
+              Monitoring
             </Button>
           </div>
 

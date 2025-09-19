@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
       await db.user.update({
         where: { id: userId },
         data: {
-          xp: { increment: totalXP }
+          totalXP: { increment: totalXP }
         }
       });
     }

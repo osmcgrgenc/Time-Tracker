@@ -13,6 +13,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Connection pooling configuration
+// For production, consider using connection pooling with PgBouncer or similar
+
 enum TimerStatus {
   RUNNING
   PAUSED
@@ -24,9 +27,13 @@ model User {
   id            String          @id @default(cuid())
   email         String          @unique
   name          String?
-  passwordHash  String
+  clerkId       String?         @unique // Clerk authentication ID
+  hashedPassword String?        // Renamed from passwordHash for consistency
+  totalXP       Int             @default(0) // Renamed from xp for clarity
   level         Int             @default(1)
-  xp            Int             @default(0)
+  preferences   Json?           // User preferences as JSON
+  isActive      Boolean         @default(true)
+  lastActiveAt  DateTime?       // Track user activity
   // relationships
   projects      Project[]
   tasks         Task[]
@@ -38,67 +45,110 @@ model User {
   // audit
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+
+  // Indexes for performance
+  @@index([email])
+  @@index([clerkId])
+  @@index([isActive])
+  @@index([lastActiveAt])
+  @@index([totalXP])
+  @@index([level])
 }
 
 model Project {
   id          String      @id @default(cuid())
   name        String
+  description String?     // Project description
   client      String?     // optional customer/analytic account
+  color       String?     // Project color for UI
+  archived    Boolean     @default(false) // Soft delete
   ownerId     String
-  owner       User        @relation(fields: [ownerId], references: [id])
+  owner       User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   tasks       Task[]
   timers      Timer[]
   timeEntries TimeEntry[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
+  // Indexes for performance
+  @@index([ownerId])
+  @@index([name])
+  @@index([archived])
+  @@index([client])
+  @@index([createdAt])
+  @@unique([ownerId, name]) // Unique project name per user
 }
 
 model Task {
   id          String      @id @default(cuid())
   projectId   String
-  project     Project     @relation(fields: [projectId], references: [id])
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   title       String
   description String?
-  status      String?     // open/closed etc.
+  completed   Boolean     @default(false) // Task completion status
+  priority    String?     @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  dueDate     DateTime?   // Task due date
+  estimatedMinutes Int?    // Estimated time in minutes
+  actualMinutes    Int?    // Actual time spent in minutes
   assigneeId  String?
-  assignee    User?       @relation(fields: [assigneeId], references: [id])
+  assignee    User?       @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
   timers      Timer[]
   timeEntries TimeEntry[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
+  // Indexes for performance
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([completed])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([createdAt])
+  @@index([title])
 }
 
 model Timer {
   id             String       @id @default(cuid())
   userId         String
-  user           User         @relation(fields: [userId], references: [id])
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   projectId      String?
-  project        Project?     @relation(fields: [projectId], references: [id])
+  project        Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
   taskId         String?
-  task           Task?        @relation(fields: [taskId], references: [id])
-  note           String?
+  task           Task?        @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  description    String?      // Renamed from note for consistency
   billable       Boolean      @default(false)
   status         TimerStatus  @default(RUNNING)
-  startedAt      DateTime
+  startTime      DateTime     // Renamed from startedAt for consistency
+  endTime        DateTime?    // End time when timer is stopped
   pausedAt       DateTime?    // last pause time
-  totalPausedMs  Int          @default(0)
-  elapsedMs      Int          @default(0) // accumulates with start/resume
-  completedAt    DateTime?
+  totalPausedTime Int         @default(0) // Renamed from totalPausedMs
+  elapsedTime    Int          @default(0) // Renamed from elapsedMs
   xpHistory      XPHistory[]
-  // indexes
-  @@index([userId, status])
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+
+  // Comprehensive indexes for performance
+  @@index([userId])
+  @@index([projectId])
+  @@index([taskId])
+  @@index([status])
+  @@index([userId, status])
+  @@index([userId, projectId])
+  @@index([userId, taskId])
+  @@index([startTime])
+  @@index([endTime])
+  @@index([billable])
+  @@index([createdAt])
 }
 
 model TimeEntry {
   id          String    @id @default(cuid())
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   projectId   String?
-  project     Project?  @relation(fields: [projectId], references: [id])
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
   taskId      String?
-  task        Task?     @relation(fields: [taskId], references: [id])
+  task        Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
   date        DateTime  // effort date (timer completedAt or startedAt date)
   description String?
   billable    Boolean   @default(false)
@@ -106,6 +156,18 @@ model TimeEntry {
   sourceTimer String?   // which timer it came from (audit)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  // Indexes for performance
+  @@index([userId])
+  @@index([projectId])
+  @@index([taskId])
+  @@index([date])
+  @@index([billable])
+  @@index([userId, date])
+  @@index([userId, projectId])
+  @@index([userId, taskId])
+  @@index([sourceTimer])
+  @@index([createdAt])
 }
 
 enum XPAction {
@@ -120,23 +182,28 @@ enum XPAction {
 model XPHistory {
   id          String    @id @default(cuid())
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   action      XPAction
   xpEarned    Int       // amount of XP earned (can be negative for penalties)
   description String?   // human readable description
   timerId     String?   // related timer if applicable
-  timer       Timer?    @relation(fields: [timerId], references: [id])
-  metadata    String?   // JSON string for additional data (level, streak, etc.)
+  timer       Timer?    @relation(fields: [timerId], references: [id], onDelete: SetNull)
+  metadata    Json?     // JSON for additional data (level, streak, etc.)
   createdAt   DateTime  @default(now())
 
-  @@index([userId, createdAt])
+  // Indexes for performance
+  @@index([userId])
   @@index([timerId])
+  @@index([action])
+  @@index([userId, createdAt])
+  @@index([userId, action])
+  @@index([createdAt])
 }
 
 model UserChallenge {
   id          String    @id @default(cuid())
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   challengeId String    // daily_time, daily_tasks, etc.
   title       String
   description String
@@ -149,14 +216,22 @@ model UserChallenge {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  // Indexes for performance
+  @@index([userId])
+  @@index([challengeId])
+  @@index([type])
+  @@index([completed])
+  @@index([date])
   @@index([userId, date])
+  @@index([userId, completed])
+  @@index([userId, type])
   @@unique([userId, challengeId, date])
 }
 
 model UserAchievement {
   id            String    @id @default(cuid())
   userId        String
-  user          User      @relation(fields: [userId], references: [id])
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   achievementId String    // first_hour, ten_hours, etc.
   title         String
   description   String
@@ -165,6 +240,13 @@ model UserAchievement {
   rarity        String    // common, rare, epic, legendary
   unlockedAt    DateTime  @default(now())
 
+  // Indexes for performance
   @@index([userId])
+  @@index([achievementId])
+  @@index([category])
+  @@index([rarity])
+  @@index([unlockedAt])
+  @@index([userId, category])
+  @@index([userId, rarity])
   @@unique([userId, achievementId])
 }

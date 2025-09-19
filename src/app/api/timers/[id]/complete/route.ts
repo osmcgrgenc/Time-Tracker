@@ -7,37 +7,34 @@ import {
   createErrorResponse,
   HTTP_STATUS,
   ERROR_MESSAGES,
-  validateUser,
   parseRequestBody
 } from '@/lib/api-helpers';
-import { requireResourceOwnership } from '@/lib/auth-middleware';
+import { withAuth, requireResourceOwnership } from '@/lib/auth-middleware';
 import { logger } from '@/lib/logger';
 import { sanitizeForLog } from '@/lib/validation';
 
 const completeTimerSchema = z.object({
-  userId: z.string(),
   description: z.string().optional(),
   date: z.string().optional(),
 });
 
-export async function POST(
+export const POST = withAuth(withErrorHandling(async (
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { userId, params }: { userId: string; params: Promise<{ id: string }> }
+) => {
+  const resolvedParams = await params;
   const startTime = Date.now();
   const method = 'POST';
-  const endpoint = `/api/timers/${params.id}/complete`;
+  const endpoint = `/api/timers/${resolvedParams.id}/complete`;
   
-  return withErrorHandling(async () => {
-    logger.apiRequest(method, endpoint);
-    
-    const timerId = params.id;
-    const { userId, description, date } = await parseRequestBody(request, completeTimerSchema);
-    
-    await validateUser(userId);
-    await requireResourceOwnership(userId, 'timer', timerId);
+  logger.apiRequest(method, endpoint);
+  
+  const timerId = resolvedParams.id;
+  const { description, date } = await parseRequestBody(request, completeTimerSchema);
+  
+  await requireResourceOwnership(userId, 'timer', timerId);
 
-    const timer = await db.timer.findUnique({
+  const timer = await db.timer.findUnique({
       where: { id: timerId },
       include: {
         project: true,
@@ -54,15 +51,16 @@ export async function POST(
     }
 
     const now = new Date();
-    let finalElapsedMs = timer.elapsedMs;
+    let finalElapsedTime = timer.elapsedTime;
 
     // If timer is running, add the current session time
     if (timer.status === 'RUNNING') {
-      finalElapsedMs += now.getTime() - new Date(timer.startedAt).getTime();
+      const sessionTime = Math.floor((now.getTime() - new Date(timer.startTime).getTime()) / 1000);
+      finalElapsedTime += sessionTime;
     }
 
-    // Convert milliseconds to minutes (rounded up)
-    const minutes = Math.ceil(finalElapsedMs / 60000);
+    // Convert seconds to minutes (rounded up)
+    const minutes = Math.ceil(finalElapsedTime / 60);
 
     // Determine the date for the time entry
     const entryDate = date ? new Date(date) : now;
@@ -76,7 +74,7 @@ export async function POST(
           projectId: timer.projectId,
           taskId: timer.taskId,
           date: entryDate,
-          description: description || timer.note,
+          description: description || timer.description,
           billable: timer.billable,
           minutes,
           sourceTimer: timer.id,
@@ -87,15 +85,15 @@ export async function POST(
         where: { id: timerId },
         data: {
           status: 'COMPLETED',
-          elapsedMs: finalElapsedMs,
-          completedAt: now,
+          elapsedTime: finalElapsedTime,
+          endTime: now,
         },
         include: {
           project: {
             select: { id: true, name: true, client: true },
           },
           task: {
-            select: { id: true, title: true, status: true },
+            select: { id: true, title: true, completed: true },
           },
         },
       });
@@ -103,7 +101,7 @@ export async function POST(
       await tx.user.update({
         where: { id: userId },
         data: {
-          xp: { increment: xpReward }
+          totalXP: { increment: xpReward }
         }
       });
 
@@ -112,7 +110,7 @@ export async function POST(
           userId,
           action: 'TIMER_COMPLETED',
           xpEarned: xpReward,
-          description: `Completed timer: ${sanitizeForLog(description || timer.note || 'Untitled')}`,
+          description: `Completed timer: ${sanitizeForLog(description || timer.description || 'Untitled')}`,
           timerId,
         }
       });
@@ -131,5 +129,4 @@ export async function POST(
     const duration = Date.now() - startTime;
     logger.apiResponse(method, endpoint, HTTP_STATUS.OK, duration, userId);
     return response;
-  });
-}
+}));
