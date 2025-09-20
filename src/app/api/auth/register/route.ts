@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, name, password } = registerSchema.parse(body);
-
+    console.log('register', email, name, password);
     // Check if user already exists
     const existingUser = await db.user.findUnique({
       where: { email },
