@@ -6,15 +6,18 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres", "postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  extensions = [uuid_ossp(map: "uuid-ossp"), pg_trgm]
 }
 
 // Connection pooling configuration
 // For production, consider using connection pooling with PgBouncer or similar
+// PostgreSQL optimized schema with full-text search and UUID extensions
 
 enum TimerStatus {
   RUNNING
@@ -23,17 +26,38 @@ enum TimerStatus {
   CANCELED
 }
 
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum AchievementRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum ChallengeType {
+  TIME
+  TASKS
+  STREAK
+  FOCUS
+}
+
 model User {
-  id            String          @id @default(cuid())
-  email         String          @unique
-  name          String?
-  clerkId       String?         @unique // Clerk authentication ID
-  hashedPassword String?        // Renamed from passwordHash for consistency
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String          @unique @db.VarChar(255)
+  name          String?         @db.VarChar(255)
+  clerkId       String?         @unique @db.VarChar(255) // Clerk authentication ID
+  hashedPassword String?        @db.VarChar(255) // Renamed from passwordHash for consistency
   totalXP       Int             @default(0) // Renamed from xp for clarity
   level         Int             @default(1)
   preferences   Json?           // User preferences as JSON
   isActive      Boolean         @default(true)
-  lastActiveAt  DateTime?       // Track user activity
+  lastActiveAt  DateTime?       @db.Timestamptz // Track user activity with timezone
   // relationships
   projects      Project[]
   tasks         Task[]
@@ -43,91 +67,103 @@ model User {
   challenges    UserChallenge[]
   achievements  UserAchievement[]
   // audit
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  createdAt     DateTime        @default(now()) @db.Timestamptz
+  updatedAt     DateTime        @updatedAt @db.Timestamptz
 
-  // Indexes for performance
-  @@index([email])
-  @@index([clerkId])
+  // Indexes for performance - PostgreSQL optimized
+  @@index([email], type: Hash)
+  @@index([clerkId], type: Hash)
   @@index([isActive])
   @@index([lastActiveAt])
   @@index([totalXP])
   @@index([level])
+  @@index([email, isActive]) // Composite index for active user lookups
+  @@index([totalXP, level]) // Composite index for leaderboards
+
+  @@map("users")
 }
 
 model Project {
-  id          String      @id @default(cuid())
-  name        String
-  description String?     // Project description
-  client      String?     // optional customer/analytic account
-  color       String?     // Project color for UI
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String      @db.VarChar(255)
+  description String?     @db.Text // Project description
+  client      String?     @db.VarChar(255) // optional customer/analytic account
+  color       String?     @db.VarChar(7) // Project color for UI (hex color)
   archived    Boolean     @default(false) // Soft delete
-  ownerId     String
+  ownerId     String      @db.Uuid
   owner       User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   tasks       Task[]
   timers      Timer[]
   timeEntries TimeEntry[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt   DateTime    @default(now()) @db.Timestamptz
+  updatedAt   DateTime    @updatedAt @db.Timestamptz
 
-  // Indexes for performance
+  // Indexes for performance - PostgreSQL optimized
   @@index([ownerId])
-  @@index([name])
+  @@index([name]) // Index for text search
   @@index([archived])
   @@index([client])
   @@index([createdAt])
+  @@index([ownerId, archived]) // Composite index for active projects per user
   @@unique([ownerId, name]) // Unique project name per user
+
+  @@map("projects")
 }
 
 model Task {
-  id          String      @id @default(cuid())
-  projectId   String
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId   String      @db.Uuid
   project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  title       String
-  description String?
+  title       String      @db.VarChar(500)
+  description String?     @db.Text
   completed   Boolean     @default(false) // Task completion status
-  priority    String?     @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
-  dueDate     DateTime?   // Task due date
+  priority    Priority    @default(MEDIUM) // LOW, MEDIUM, HIGH, URGENT
+  dueDate     DateTime?   @db.Timestamptz // Task due date
   estimatedMinutes Int?    // Estimated time in minutes
   actualMinutes    Int?    // Actual time spent in minutes
-  assigneeId  String?
+  assigneeId  String?     @db.Uuid
   assignee    User?       @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
   timers      Timer[]
   timeEntries TimeEntry[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt   DateTime    @default(now()) @db.Timestamptz
+  updatedAt   DateTime    @updatedAt @db.Timestamptz
 
-  // Indexes for performance
+  // Indexes for performance - PostgreSQL optimized
   @@index([projectId])
   @@index([assigneeId])
   @@index([completed])
   @@index([priority])
   @@index([dueDate])
   @@index([createdAt])
-  @@index([title])
+  @@index([title]) // Index for text search
+  @@index([projectId, completed]) // Composite index for project task status
+  @@index([assigneeId, completed]) // Composite index for user task status
+  @@index([dueDate, completed]) // Composite index for due task queries
+
+  @@map("tasks")
 }
 
 model Timer {
-  id             String       @id @default(cuid())
-  userId         String
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String       @db.Uuid
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  projectId      String?
+  projectId      String?      @db.Uuid
   project        Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  taskId         String?
+  taskId         String?      @db.Uuid
   task           Task?        @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  description    String?      // Renamed from note for consistency
+  description    String?      @db.Text // Renamed from note for consistency
   billable       Boolean      @default(false)
   status         TimerStatus  @default(RUNNING)
-  startTime      DateTime     // Renamed from startedAt for consistency
-  endTime        DateTime?    // End time when timer is stopped
-  pausedAt       DateTime?    // last pause time
+  startTime      DateTime     @db.Timestamptz // Renamed from startedAt for consistency
+  endTime        DateTime?    @db.Timestamptz // End time when timer is stopped
+  pausedAt       DateTime?    @db.Timestamptz // last pause time
   totalPausedTime Int         @default(0) // Renamed from totalPausedMs
   elapsedTime    Int          @default(0) // Renamed from elapsedMs
   xpHistory      XPHistory[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime     @default(now()) @db.Timestamptz
+  updatedAt      DateTime     @updatedAt @db.Timestamptz
 
-  // Comprehensive indexes for performance
+  // Comprehensive indexes for performance - PostgreSQL optimized
   @@index([userId])
   @@index([projectId])
   @@index([taskId])
@@ -139,25 +175,29 @@ model Timer {
   @@index([endTime])
   @@index([billable])
   @@index([createdAt])
+  @@index([userId, startTime]) // Composite index for user timer history
+  @@index([status, startTime]) // Composite index for active timer queries
+
+  @@map("timers")
 }
 
 model TimeEntry {
-  id          String    @id @default(cuid())
-  userId      String
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @db.Uuid
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  projectId   String?
+  projectId   String?   @db.Uuid
   project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  taskId      String?
+  taskId      String?   @db.Uuid
   task        Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  date        DateTime  // effort date (timer completedAt or startedAt date)
-  description String?
+  date        DateTime  @db.Date // effort date (timer completedAt or startedAt date)
+  description String?   @db.Text
   billable    Boolean   @default(false)
   minutes     Int       // duration in minutes (practical for Excel and reporting)
-  sourceTimer String?   // which timer it came from (audit)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  sourceTimer String?   @db.Uuid // which timer it came from (audit)
+  createdAt   DateTime  @default(now()) @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @db.Timestamptz
 
-  // Indexes for performance
+  // Indexes for performance - PostgreSQL optimized
   @@index([userId])
   @@index([projectId])
   @@index([taskId])
@@ -168,6 +208,10 @@ model TimeEntry {
   @@index([userId, taskId])
   @@index([sourceTimer])
   @@index([createdAt])
+  @@index([userId, date, billable]) // Composite index for billing reports
+  @@index([projectId, date]) // Composite index for project time reports
+
+  @@map("time_entries")
 }
 
 enum XPAction {
@@ -180,43 +224,46 @@ enum XPAction {
 }
 
 model XPHistory {
-  id          String    @id @default(cuid())
-  userId      String
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @db.Uuid
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   action      XPAction
   xpEarned    Int       // amount of XP earned (can be negative for penalties)
-  description String?   // human readable description
-  timerId     String?   // related timer if applicable
+  description String?   @db.Text // human readable description
+  timerId     String?   @db.Uuid // related timer if applicable
   timer       Timer?    @relation(fields: [timerId], references: [id], onDelete: SetNull)
-  metadata    Json?     // JSON for additional data (level, streak, etc.)
-  createdAt   DateTime  @default(now())
+  metadata    Json?     @db.JsonB // JSON for additional data (level, streak, etc.)
+  createdAt   DateTime  @default(now()) @db.Timestamptz
 
-  // Indexes for performance
+  // Indexes for performance - PostgreSQL optimized
   @@index([userId])
   @@index([timerId])
   @@index([action])
   @@index([userId, createdAt])
   @@index([userId, action])
   @@index([createdAt])
+  @@index([metadata], type: Gin) // GIN index for JSONB queries
+
+  @@map("xp_history")
 }
 
 model UserChallenge {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challengeId String    // daily_time, daily_tasks, etc.
-  title       String
-  description String
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String        @db.Uuid
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId String        @db.VarChar(255) // daily_time, daily_tasks, etc.
+  title       String        @db.VarChar(255)
+  description String        @db.Text
   target      Int
-  current     Int       @default(0)
+  current     Int           @default(0)
   xpReward    Int
-  type        String    // time, tasks, streak, focus
-  completed   Boolean   @default(false)
-  date        DateTime  // challenge date
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  type        ChallengeType // time, tasks, streak, focus
+  completed   Boolean       @default(false)
+  date        DateTime      @db.Date // challenge date
+  createdAt   DateTime  @default(now()) @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @db.Timestamptz
 
-  // Indexes for performance
+  // Indexes for performance - PostgreSQL optimized
   @@index([userId])
   @@index([challengeId])
   @@index([type])
@@ -225,22 +272,25 @@ model UserChallenge {
   @@index([userId, date])
   @@index([userId, completed])
   @@index([userId, type])
+  @@index([date, completed]) // Composite index for daily challenge queries
   @@unique([userId, challengeId, date])
+
+  @@map("user_challenges")
 }
 
 model UserAchievement {
-  id            String    @id @default(cuid())
-  userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievementId String    // first_hour, ten_hours, etc.
-  title         String
-  description   String
+  id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String            @db.Uuid
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String            @db.VarChar(255) // first_hour, ten_hours, etc.
+  title         String            @db.VarChar(255)
+  description   String            @db.Text
   xpReward      Int
-  category      String    // time, tasks, streak, special
-  rarity        String    // common, rare, epic, legendary
-  unlockedAt    DateTime  @default(now())
+  category      String            @db.VarChar(100) // time, tasks, streak, special
+  rarity        AchievementRarity // common, rare, epic, legendary
+  unlockedAt    DateTime          @default(now()) @db.Timestamptz
 
-  // Indexes for performance
+  // Indexes for performance - PostgreSQL optimized
   @@index([userId])
   @@index([achievementId])
   @@index([category])
@@ -248,5 +298,8 @@ model UserAchievement {
   @@index([unlockedAt])
   @@index([userId, category])
   @@index([userId, rarity])
+  @@index([category, rarity]) // Composite index for achievement browsing
   @@unique([userId, achievementId])
+
+  @@map("user_achievements")
 }

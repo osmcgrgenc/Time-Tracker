@@ -149,7 +149,7 @@ export default function OptimizedDashboard() {
                 </div>
               )}
               
-              <AccessibleButton variant="outline" onClick={logout}>
+              <AccessibleButton variant="outline" onClick={() => logout()}>
                 Logout
               </AccessibleButton>
             </div>

@@ -39,50 +39,65 @@ redis.on('reconnecting', () => {
 // Cache manager with Redis store
 let cacheManager: any;
 
-// Initialize cache manager
-async function initializeCacheManager() {
+// Initialize cache manager with fallback to memory cache
+export async function initializeCacheManager(): Promise<any> {
   if (!cacheManager) {
-    const store = await redisStore({
-      socket: {
-        host: redisConfig.host,
-        port: redisConfig.port,
-      },
-      password: redisConfig.password,
-      database: redisConfig.db,
-    });
-    
-    cacheManager = createCache({
-      stores: [store as any],
-      ttl: 300, // Default TTL: 5 minutes
-    });
+    try {
+      // Try Redis first
+      const store = await redisStore({
+        socket: {
+          host: redisConfig.host,
+          port: redisConfig.port,
+        },
+        password: redisConfig.password,
+        database: redisConfig.db,
+      });
+      
+      cacheManager = createCache({
+        stores: [store as any],
+        ttl: 600, // 10 minutes default TTL
+      });
+      
+      // Test Redis connection
+      await redis.ping();
+      console.log('Redis cache manager initialized successfully');
+    } catch (error) {
+      console.warn('Redis connection failed, falling back to memory cache:', error);
+      // Fallback to memory-only cache
+      cacheManager = createCache({
+        stores: [],
+        ttl: 600,
+      });
+      console.log('Memory cache fallback initialized');
+    }
   }
   return cacheManager;
 }
 
-export { initializeCacheManager };
 export { cacheManager };
 
 // Cache utility functions
 export class RedisCache {
-  // Get cached data
+  // Get cached data with fallback
   static async get<T>(key: string): Promise<T | null> {
     try {
       const cache = await initializeCacheManager();
-      const cached = await cache.get(key);
-      return cached || null;
+      const result = await cache.get(key);
+      return result || null;
     } catch (error) {
-      console.error(`Cache get error for key ${key}:`, error);
+      console.warn(`Cache get error for key ${key}, returning null:`, error);
       return null;
     }
   }
 
-  // Set cached data
+  // Set cached data with fallback
   static async set<T>(key: string, value: T, ttl?: number): Promise<void> {
     try {
       const cache = await initializeCacheManager();
       await cache.set(key, value, ttl);
     } catch (error) {
-      console.error(`Cache set error for key ${key}:`, error);
+      console.warn(`Cache set error for key ${key}, operation skipped:`, error);
+      // Gracefully fail - don't throw error
     }
   }
 

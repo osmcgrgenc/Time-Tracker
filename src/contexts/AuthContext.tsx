@@ -1,6 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
+import { Session } from 'next-auth';
 
 interface User {
   id: string;
@@ -10,59 +12,36 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, name?: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check for stored user data on mount - SSR compatible
-    if (typeof window !== 'undefined') {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (error) {
-          localStorage.removeItem('user');
-        }
-      }
-    }
-    setLoading(false);
-  }, []);
+  const { data: session, status } = useSession();
+  
+  // Convert NextAuth session to our User format
+  const user: User | null = session?.user ? {
+    id: session.user.id,
+    email: session.user.email!,
+    name: session.user.name || undefined
+  } : null;
+  
+  const loading = status === 'loading';
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-        // Store JWT token instead of full user object for security
-        if (typeof window !== 'undefined' && data.token) {
-          localStorage.setItem('token', data.token);
-          // Store minimal user info if needed
-          localStorage.setItem('user', JSON.stringify({
-            id: data.user.id,
-            email: data.user.email,
-            name: data.user.name
-          }));
-        }
-        return true;
-      }
-      return false;
+      
+      return result?.ok === true;
     } catch (error) {
       console.error('Login error:', error);
       return false;
@@ -75,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     name?: string
   ): Promise<boolean> => {
     try {
+      // First register the user
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -84,19 +64,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-        // Store JWT token instead of full user object for security
-        if (typeof window !== 'undefined' && data.token) {
-          localStorage.setItem('token', data.token);
-          // Store minimal user info if needed
-          localStorage.setItem('user', JSON.stringify({
-            id: data.user.id,
-            email: data.user.email,
-            name: data.user.name
-          }));
-        }
-        return true;
+        // After successful registration, sign in with NextAuth
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+        });
+        
+        return result?.ok === true;
       }
       return false;
     } catch (error) {
@@ -105,16 +80,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-    }
+  const logout = async (): Promise<void> => {
+    await signOut({ redirect: false });
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, session, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

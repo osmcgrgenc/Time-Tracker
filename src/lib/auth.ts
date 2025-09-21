@@ -36,8 +36,8 @@ export function withAuth(handler: (req: NextRequest, userId: string) => Promise<
     } catch (error) {
       console.error('Auth middleware error:', error)
       return createErrorResponse(
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        HTTP_STATUS.INTERNAL_SERVER_ERROR
+        ERROR_MESSAGES.INTERNAL_ERROR,
+        HTTP_STATUS.INTERNAL_ERROR
       )
     }
   }

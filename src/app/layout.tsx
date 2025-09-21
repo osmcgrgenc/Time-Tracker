@@ -6,6 +6,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ServiceWorkerProvider } from "@/components/ServiceWorkerProvider";
 import { RoutePreloadManager } from "@/components/RouteBasedSplitting";
+import { SessionProviderWrapper } from "@/components/providers/SessionProviderWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,12 +34,13 @@ export const metadata: Metadata = {
     description: "Gamified time management with XP, levels, and achievements",
     type: "website",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -53,12 +55,14 @@ export default function RootLayout({
       >
         <ServiceWorkerProvider>
           <RoutePreloadManager>
-            <ThemeProvider>
-              <AuthProvider>
-                {children}
-                <Toaster />
-              </AuthProvider>
-            </ThemeProvider>
+            <SessionProviderWrapper>
+              <ThemeProvider>
+                <AuthProvider>
+                  {children}
+                  <Toaster />
+                </AuthProvider>
+              </ThemeProvider>
+            </SessionProviderWrapper>
           </RoutePreloadManager>
         </ServiceWorkerProvider>
       </body>

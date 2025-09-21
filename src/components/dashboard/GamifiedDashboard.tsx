@@ -124,16 +124,17 @@ export default function GamifiedDashboard() {
 
       if (timersRes.ok) {
         const timersData = await timersRes.json();
-        setTimers(timersData.timers);
+        const timers = timersData?.timers || [];
+        setTimers(timers);
         
         // Calculate user stats
-        const totalMs = timersData.timers.reduce((acc: number, timer: Timer) => acc + timer.elapsedMs, 0);
+        const totalMs = timers.reduce((acc: number, timer: Timer) => acc + timer.elapsedMs, 0);
         const totalHours = Math.floor(totalMs / 3600000);
-        const completedTasks = timersData.timers.filter((t: Timer) => t.status === 'COMPLETED').length;
+        const completedTasks = timers.filter((t: Timer) => t.status === 'COMPLETED').length;
         
         // Today's stats
         const today = new Date().toDateString();
-        const todayTimers = timersData.timers.filter((t: Timer) => new Date(t.startedAt).toDateString() === today);
+        const todayTimers = timers.filter((t: Timer) => new Date(t.startedAt).toDateString() === today);
         const todayMs = todayTimers.reduce((acc: number, timer: Timer) => acc + timer.elapsedMs, 0);
         const todayHours = Math.floor(todayMs / 3600000);
         const todayTasks = todayTimers.filter((t: Timer) => t.status === 'COMPLETED').length;
@@ -151,12 +152,12 @@ export default function GamifiedDashboard() {
 
       if (projectsRes.ok) {
         const projectsData = await projectsRes.json();
-        setProjects(projectsData.projects);
+        setProjects(projectsData?.projects || []);
       }
 
       if (tasksRes.ok) {
         const tasksData = await tasksRes.json();
-        setTasks(tasksData.tasks);
+        setTasks(tasksData?.tasks || []);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -497,7 +498,7 @@ export default function GamifiedDashboard() {
                   </span>
                 </div>
               )}
-              <Button variant="outline" onClick={logout} className="text-xs sm:text-sm px-2 sm:px-4">
+              <Button variant="outline" onClick={() => logout()} className="text-xs sm:text-sm px-2 sm:px-4">
                 <span className="hidden sm:inline">Logout</span>
                 <span className="sm:hidden">Exit</span>
               </Button>

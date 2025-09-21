@@ -20,6 +20,7 @@ export default function LoginPage() {
     password: ''
   });
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -28,14 +29,16 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
-        redirect: false
+        redirect: false,
+        callbackUrl: '/'
       });
-      alert(JSON.stringify(result))
+      
       if (result?.error) {
         toast.error('Geçersiz e-posta veya şifre');
-      } else {
+      } else if (result?.ok) {
         toast.success('Giriş başarılı!');
         router.push('/');
+        router.refresh(); // Session'ı yenile
       }
     } catch (error) {
       toast.error('Giriş sırasında bir hata oluştu');

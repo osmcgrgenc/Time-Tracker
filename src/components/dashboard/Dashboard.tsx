@@ -114,7 +114,7 @@ export default function Dashboard() {
                   </span>
                 </div>
               )}
-              <Button variant="outline" onClick={logout} className="text-sm">
+              <Button variant="outline" onClick={() => logout()} className="text-sm">
                 Logout
               </Button>
             </div>

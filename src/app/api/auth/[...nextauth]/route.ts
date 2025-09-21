@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth'
+import NextAuth, { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { db } from '@/lib/db'
 import bcrypt from 'bcryptjs'
@@ -10,7 +10,7 @@ const loginSchema = z.object({
   password: z.string().min(1),
 })
 
-const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -57,7 +57,7 @@ const authOptions = {
   ],
   session: {
     strategy: 'jwt' as const,
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 24 * 60 * 60, // 24 hours
   },
   events: {
     async signIn({ user }) {
@@ -81,35 +81,30 @@ const authOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.userId = user.id
-        token.email = user.email
-        token.name = user.name
-        
-        // Update Redis session on token refresh
-        await RedisSession.set(user.id, {
-          userId: user.id,
-          email: user.email,
-          name: user.name,
-          lastActivity: new Date().toISOString(),
-        });
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        // Set token expiration time
+        token.exp = Math.floor(Date.now() / 1000) + (24 * 60 * 60); // 24 hours from now
       }
-      return token
+      return token;
     },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.userId as string
-        session.user.email = token.email as string
-        session.user.name = token.name as string
-        
-        // Verify session exists in Redis
-        const redisSession = await RedisSession.get(token.userId as string);
-        if (!redisSession) {
-          // Session expired or doesn't exist in Redis
-          throw new Error('Session expired');
-        }
+    session: async ({ session, token }) => {
+      if (!token || !session?.user) {
+        return session;
       }
-      return session
-    }
+      
+      // Check token expiration
+      if (token.exp && typeof token.exp === "number" &&  Date.now() >= token.exp * 1000) {
+        return session;
+      }
+      
+      session.user.id = token.sub!;
+      session.user.email = token.email!;
+      session.user.name = token.name!;
+      
+      return session;
+    },
   },
   pages: {
     signIn: '/login',
