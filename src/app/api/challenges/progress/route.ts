@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
+import { ChallengeType } from '@prisma/client';
 
 const updateProgressSchema = z.object({
   userId: z.string(),
@@ -37,16 +38,16 @@ export async function POST(request: NextRequest) {
       let current = 0;
       
       switch (challenge.type) {
-        case 'time':
+        case ChallengeType.TIME:
           current = userStats.todayHours;
           break;
-        case 'tasks':
+        case ChallengeType.TASKS:
           current = userStats.todayTasks;
           break;
-        case 'focus':
+        case ChallengeType.FOCUS:
           current = userStats.focusTime;
           break;
-        case 'streak':
+        case ChallengeType.STREAK:
           current = userStats.currentStreak;
           break;
       }

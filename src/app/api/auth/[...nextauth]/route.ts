@@ -10,7 +10,7 @@ const loginSchema = z.object({
   password: z.string().min(1),
 })
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',

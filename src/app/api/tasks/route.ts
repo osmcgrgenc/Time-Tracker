@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
-import { Prisma } from '@prisma/client';
+import { Prisma, Priority } from '@prisma/client';
 
 const createTaskSchema = z.object({
   userId: z.string(),
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
         title,
         description,
         completed,
-        priority,
+        priority: priority as Priority,
         assigneeId,
       },
       include: {

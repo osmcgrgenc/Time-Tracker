@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
+import { ChallengeType } from '@prisma/client';
 
 const updateChallengeSchema = z.object({
   userId: z.string(),
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
           description: 'Track 2 hours today',
           target: 2,
           xpReward: 100,
-          type: 'time'
+          type: 'TIME'
         },
         {
           id: 'daily_tasks',
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
           description: 'Complete 3 tasks today',
           target: 3,
           xpReward: 75,
-          type: 'tasks'
+          type: 'TASKS'
         },
         {
           id: 'focus_session',
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
           description: 'Have a 25-minute focused session',
           target: 25,
           xpReward: 50,
-          type: 'focus'
+          type: 'FOCUS'
         }
       ];
 
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
             target: template.target,
             current: 0,
             xpReward: template.xpReward,
-            type: template.type,
+            type: template.type as ChallengeType,
             completed: false,
             date: new Date()
           }

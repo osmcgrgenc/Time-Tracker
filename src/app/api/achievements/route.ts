@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sanitizeForLog } from '@/lib/validation';
+import { AchievementRarity } from '@prisma/client';
 
 const achievementTemplates = [
   {
@@ -10,7 +11,7 @@ const achievementTemplates = [
     requirement: 1,
     xpReward: 50,
     category: 'time',
-    rarity: 'common'
+    rarity: 'COMMON'
   },
   {
     id: 'ten_hours',
@@ -19,7 +20,7 @@ const achievementTemplates = [
     requirement: 10,
     xpReward: 100,
     category: 'time',
-    rarity: 'common'
+    rarity: 'COMMON'
   },
   {
     id: 'hundred_hours',
@@ -28,7 +29,7 @@ const achievementTemplates = [
     requirement: 100,
     xpReward: 500,
     category: 'time',
-    rarity: 'rare'
+    rarity: 'RARE'
   },
   {
     id: 'first_task',
@@ -37,7 +38,7 @@ const achievementTemplates = [
     requirement: 1,
     xpReward: 25,
     category: 'tasks',
-    rarity: 'common'
+    rarity: 'COMMON'
   },
   {
     id: 'ten_tasks',
@@ -46,7 +47,7 @@ const achievementTemplates = [
     requirement: 10,
     xpReward: 150,
     category: 'tasks',
-    rarity: 'common'
+    rarity: 'COMMON'
   },
   {
     id: 'week_streak',
@@ -55,7 +56,7 @@ const achievementTemplates = [
     requirement: 7,
     xpReward: 200,
     category: 'streak',
-    rarity: 'rare'
+    rarity: 'RARE'
   }
 ];
 
@@ -140,7 +141,7 @@ export async function GET(request: NextRequest) {
             description: sanitizeForLog(achievement.description),
             xpReward: achievement.xpReward,
             category: achievement.category,
-            rarity: achievement.rarity
+            rarity: achievement.rarity as AchievementRarity
           }
         })
       );
