@@ -124,7 +124,11 @@ export default function GamifiedDashboard() {
 
       if (timersRes.ok) {
         const timersData = await timersRes.json();
-        const timers = timersData?.timers || [];
+        const timers = Array.isArray(timersData?.data?.timers)
+          ? timersData.data.timers
+          : Array.isArray(timersData?.timers)
+            ? timersData.timers
+            : [];
         setTimers(timers);
         
         // Calculate user stats
@@ -152,12 +156,24 @@ export default function GamifiedDashboard() {
 
       if (projectsRes.ok) {
         const projectsData = await projectsRes.json();
-        setProjects(projectsData?.projects || []);
+        const projectList = Array.isArray(projectsData?.data)
+          ? projectsData.data
+          : Array.isArray(projectsData?.projects)
+            ? projectsData.projects
+            : [];
+
+        setProjects(projectList);
       }
 
       if (tasksRes.ok) {
         const tasksData = await tasksRes.json();
-        setTasks(tasksData?.tasks || []);
+        const taskList = Array.isArray(tasksData?.data)
+          ? tasksData.data
+          : Array.isArray(tasksData?.tasks)
+            ? tasksData.tasks
+            : [];
+
+        setTasks(taskList);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -236,7 +252,14 @@ export default function GamifiedDashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        setTimers(prev => [data.timer, ...prev]);
+        const timer = data?.timer;
+
+        if (!timer?.id) {
+          toast.error('Failed to create timer - invalid response');
+          return;
+        }
+
+        setTimers(prev => [timer, ...prev]);
         setNewTimerNote('');
         setNewTimerBillable(false);
         setSelectedProject('');
@@ -266,7 +289,14 @@ export default function GamifiedDashboard() {
       
       if (response.ok) {
         const data = await response.json();
-        setTimers(prev => prev.map(t => t.id === timerId ? data.timer : t));
+        const updatedTimer = data?.data?.timer ?? data?.timer ?? data ?? null;
+
+        if (!updatedTimer?.id) {
+          toast.error('Unexpected pause timer response');
+          return;
+        }
+
+        setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
         toast.success('⏸️ Timer paused');
       } else {
         const errorData = await response.json();
@@ -290,7 +320,14 @@ export default function GamifiedDashboard() {
       
       if (response.ok) {
         const data = await response.json();
-        setTimers(prev => prev.map(t => t.id === timerId ? data.timer : t));
+        const updatedTimer = data?.data?.timer ?? data?.timer ?? data ?? null;
+
+        if (!updatedTimer?.id) {
+          toast.error('Unexpected resume timer response');
+          return;
+        }
+
+        setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
         toast.success('▶️ Timer resumed');
       } else {
         const errorData = await response.json();
@@ -317,7 +354,14 @@ export default function GamifiedDashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        setTimers(prev => prev.map(t => t.id === timerId ? data.timer : t));
+        const updatedTimer = data?.data?.timer ?? data?.timer ?? null;
+
+        if (!updatedTimer?.id) {
+          toast.error('Unexpected complete timer response');
+          return;
+        }
+
+        setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
         setCompleteDialog({ open: false, timerId: '' });
         setCompleteDescription('');
         
@@ -351,7 +395,14 @@ export default function GamifiedDashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        setTimers(prev => prev.map(t => t.id === timerId ? data.timer : t));
+        const updatedTimer = data?.data?.timer ?? data?.timer ?? null;
+
+        if (!updatedTimer?.id) {
+          toast.error('Unexpected cancel timer response');
+          return;
+        }
+
+        setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
         toast.success('❌ Timer canceled');
       } else {
         toast.error('Failed to cancel timer');
@@ -380,8 +431,15 @@ export default function GamifiedDashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        setProjects(prev => [data.project, ...prev]);
-        setSelectedProject(data.project.id);
+        const project = data?.data;
+
+        if (!project?.id) {
+          toast.error('Failed to create project - invalid response');
+          return;
+        }
+
+        setProjects(prev => [project, ...prev]);
+        setSelectedProject(project.id);
         setNewProjectName('');
         setNewProjectClient('');
         setShowCreateProject(false);
@@ -429,6 +487,11 @@ export default function GamifiedDashboard() {
   const bulkInsertEntries = async () => {
     if (!user || !bulkEntries.trim()) return;
 
+    if (!selectedProject || selectedProject === 'none') {
+      toast.error('⚠️ Project Required: Please select a project from the dropdown above before inserting time entries. All entries will be assigned to the selected project.');
+      return;
+    }
+
     try {
       const entries = bulkEntries.split('\n').filter(line => line.trim()).map(line => {
         const parts = line.split(',').map(p => p.trim());
@@ -437,7 +500,7 @@ export default function GamifiedDashboard() {
           description: parts[1] || '',
           minutes: parseInt(parts[2]) || 60,
           billable: parts[3]?.toLowerCase() === 'true' || false,
-          projectId: selectedProject !== 'none' ? selectedProject : undefined,
+          projectId: selectedProject,
           taskId: selectedTask !== 'none' ? selectedTask : undefined
         };
       });

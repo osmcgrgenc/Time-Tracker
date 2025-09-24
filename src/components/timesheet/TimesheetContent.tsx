@@ -9,8 +9,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Filter, RotateCcw, Clock, Target } from 'lucide-react';
+import { Download, Filter, RotateCcw, Clock, Target, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface TimeEntry {
   id: string;
@@ -79,6 +90,7 @@ export default function TimesheetContent() {
   const [selectedProject, setSelectedProject] = useState('all');
   const [selectedTask, setSelectedTask] = useState('all');
   const [billableFilter, setBillableFilter] = useState('all');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Set default date range (last 30 days)
   useEffect(() => {
@@ -90,7 +102,20 @@ export default function TimesheetContent() {
   }, []);
 
   const fetchData = async () => {
-    if (!user) return;
+    if (!user || !fromDate || !toDate) return;
+
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
+      toast.error('Please enter valid start and end dates');
+      return;
+    }
+
+    if (from > to) {
+      toast.error('📅 Invalid Date Range: The end date cannot be earlier than the start date. Please check your date selection and try again.');
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -108,12 +133,24 @@ export default function TimesheetContent() {
 
       if (projectsRes.ok) {
         const projectsData = await projectsRes.json();
-        setProjects(projectsData.projects);
+        const projectList = Array.isArray(projectsData?.data)
+          ? projectsData.data
+          : Array.isArray(projectsData?.projects)
+            ? projectsData.projects
+            : [];
+
+        setProjects(projectList);
       }
 
       if (tasksRes.ok) {
         const tasksData = await tasksRes.json();
-        setTasks(tasksData.tasks);
+        const taskList = Array.isArray(tasksData?.data)
+          ? tasksData.data
+          : Array.isArray(tasksData?.tasks)
+            ? tasksData.tasks
+            : [];
+
+        setTasks(taskList);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -213,7 +250,8 @@ export default function TimesheetContent() {
         const data = await response.json();
         fetchData();
         setSelectedEntries(new Set());
-        toast.success(data.message);
+        setShowDeleteDialog(false);
+        toast.success(`🗑️ ${selectedEntries.size} time entries deleted successfully`);
       } else {
         toast.error('Failed to delete time entries');
       }
@@ -421,9 +459,10 @@ export default function TimesheetContent() {
               <Button 
                 variant="destructive" 
                 size="sm"
-                onClick={deleteSelectedEntries}
+                onClick={() => setShowDeleteDialog(true)}
                 className="bg-red-600 hover:bg-red-700 text-xs sm:text-sm"
               >
+                <Trash2 className="h-4 w-4 mr-1" />
                 Delete Selected
               </Button>
             </div>
@@ -563,6 +602,32 @@ export default function TimesheetContent() {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="h-5 w-5" />
+              Confirm Deletion
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedEntries.size} selected time {selectedEntries.size > 1 ? 'entries' : 'entry'}? 
+              <br />
+              <span className="font-semibold text-red-600">This action cannot be undone.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={deleteSelectedEntries}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete {selectedEntries.size} {selectedEntries.size > 1 ? 'Entries' : 'Entry'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

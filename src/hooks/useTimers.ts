@@ -41,11 +41,18 @@ export function useTimers() {
 
       if (timersRes.ok) {
         const timersData = await timersRes.json();
-        setTimers(timersData.timers);
-        // Calculate user stats
-        const totalMs = Array.isArray(timersData.timers) ? timersData.timers.reduce((acc: number, timer: DashboardTimer) => acc + timer.elapsedMs, 0) : 0;
+        const timerList = Array.isArray(timersData?.data?.timers)
+          ? timersData.data.timers
+          : Array.isArray(timersData?.timers)
+            ? timersData.timers
+            : [];
+
+        setTimers(timerList);
+
+        // Calculate user stats from normalized timer list
+        const totalMs = timerList.reduce((acc: number, timer: DashboardTimer) => acc + timer.elapsedMs, 0);
         const totalHours = Math.floor(totalMs / 3600000);
-        const completedTasks = Array.isArray(timersData.timers) ? timersData.timers.filter((t: DashboardTimer) => t.status === 'COMPLETED').length : 0;
+        const completedTasks = timerList.filter((t: DashboardTimer) => t.status === 'COMPLETED').length;
         setUserStats(prev => ({
           ...prev,
           totalHours,
@@ -57,12 +64,24 @@ export function useTimers() {
 
       if (projectsRes.ok) {
         const projectsData = await projectsRes.json();
-        setProjects(projectsData.projects);
+        const projectList = Array.isArray(projectsData?.data)
+          ? projectsData.data
+          : Array.isArray(projectsData?.projects)
+            ? projectsData.projects
+            : [];
+
+        setProjects(projectList);
       }
 
       if (tasksRes.ok) {
         const tasksData = await tasksRes.json();
-        setTasks(tasksData.tasks);
+        const taskList = Array.isArray(tasksData?.data)
+          ? tasksData.data
+          : Array.isArray(tasksData?.tasks)
+            ? tasksData.tasks
+            : [];
+
+        setTasks(taskList);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -111,7 +130,13 @@ export function useTimers() {
 
       if (response.ok) {
         const responseData = await response.json();
-        setTimers(prev => [responseData.timer, ...prev]);
+        const timer = responseData?.data?.timer ?? responseData?.timer ?? null;
+
+        if (!timer) {
+          throw new Error('Timer payload is missing in the response');
+        }
+
+        setTimers(prev => [timer, ...prev]);
         setUserStats(prev => ({ ...prev, xp: prev.xp + 5 }));
 
         // Save XP history
@@ -119,7 +144,7 @@ export function useTimers() {
           'TIMER_STARTED',
           5,
           'Timer başlatıldı',
-          responseData.timer.id,
+          timer.id,
           { projectId: data.projectId, taskId: data.taskId }
         );
 
@@ -150,7 +175,14 @@ export function useTimers() {
 
       if (response.ok) {
         const data = await response.json();
-        setTimers(prev => prev.map(t => t.id === timerId ? data.timer : t));
+        const updatedTimer = data?.data?.timer ?? data?.timer ?? data ?? null;
+
+        if (!updatedTimer?.id) {
+          toast.error('Unexpected pause timer response');
+          return false;
+        }
+
+        setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
         toast.success('⏸️ Timer paused');
         return true;
       } else {
@@ -177,7 +209,14 @@ export function useTimers() {
 
       if (response.ok) {
         const data = await response.json();
-        setTimers(prev => prev.map(t => t.id === timerId ? data.timer : t));
+        const updatedTimer = data?.data?.timer ?? data?.timer ?? data ?? null;
+
+        if (!updatedTimer?.id) {
+          toast.error('Unexpected resume timer response');
+          return false;
+        }
+
+        setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
         toast.success('▶️ Timer resumed');
         return true;
       } else {
@@ -207,7 +246,14 @@ export function useTimers() {
 
       if (response.ok) {
         const data = await response.json();
-        setTimers(prev => prev.map(t => t.id === timerId ? data.timer : t));
+        const updatedTimer = data?.data?.timer ?? data?.timer ?? null;
+
+        if (!updatedTimer?.id) {
+          toast.error('Unexpected complete timer response');
+          return false;
+        }
+
+        setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
 
         // Gamification rewards
         const xpGain = 15;
@@ -251,7 +297,14 @@ export function useTimers() {
 
       if (response.ok) {
         const data = await response.json();
-        setTimers(prev => prev.map(t => t.id === timerId ? data.timer : t));
+        const updatedTimer = data?.data?.timer ?? data?.timer ?? null;
+
+        if (!updatedTimer?.id) {
+          toast.error('Unexpected cancel timer response');
+          return false;
+        }
+
+        setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
         toast.success('❌ Timer canceled');
         return true;
       } else {
