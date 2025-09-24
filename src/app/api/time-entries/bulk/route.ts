@@ -31,6 +31,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate projects and tasks for each entry
+    for (const entry of entries) {
+      if (entry.projectId) {
+        const project = await db.project.findFirst({
+          where: { id: entry.projectId, ownerId: userId },
+        });
+
+        if (!project) {
+          return NextResponse.json(
+            { error: `Project not found or access denied: ${entry.projectId}` },
+            { status: 400 }
+          );
+        }
+
+        if (entry.taskId) {
+          const task = await db.task.findFirst({
+            where: {
+              id: entry.taskId,
+              projectId: entry.projectId,
+            },
+          });
+
+          if (!task) {
+            return NextResponse.json(
+              { error: `Task not found or does not belong to project: ${entry.taskId}` },
+              { status: 400 }
+            );
+          }
+        }
+      }
+    }
+
     // Create time entries
     const timeEntries = await db.timeEntry.createMany({
       data: entries.map(entry => ({

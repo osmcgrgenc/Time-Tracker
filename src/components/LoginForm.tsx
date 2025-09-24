@@ -40,7 +40,26 @@ export default function LoginForm() {
       });
       
       if (result?.error) {
-        toast.error('E-posta veya şifre hatalı, lütfen tekrar deneyin.');
+        let errorMessage = 'Giriş yapılırken bir hata oluştu.';
+
+        switch (result.error) {
+          case 'CredentialsSignin':
+            errorMessage = 'E-posta veya şifre hatalı. Lütfen bilgilerinizi kontrol edin.';
+            break;
+          case 'EmailSignin':
+            errorMessage = 'E-posta adresinize gönderilen bağlantıyı kullanarak giriş yapın.';
+            break;
+          case 'OAuthSignin':
+            errorMessage = 'Sosyal medya girişi sırasında bir hata oluştu.';
+            break;
+          case 'SessionRequired':
+            errorMessage = 'Bu işlem için giriş yapmanız gerekiyor.';
+            break;
+          default:
+            errorMessage = 'Giriş yapılırken beklenmedik bir hata oluştu. Lütfen tekrar deneyin.';
+        }
+
+        toast.error(errorMessage);
       } else if (result?.ok) {
         toast.success('Giriş başarılı!');
         router.push('/');
@@ -81,10 +100,12 @@ export default function LoginForm() {
           </CardHeader>
           <CardContent>
             {showRegistrationSuccess ? (
-              <Alert className="mb-4">
-                <AlertTitle>Hesabınız oluşturuldu</AlertTitle>
-                <AlertDescription>
-                  Giriş yapabilmek için kayıt sırasında belirlediğiniz e-posta ve şifreyi kullanabilirsiniz.
+              <Alert className="mb-4 border-green-200 bg-green-50">
+                <AlertTitle className="text-green-800 flex items-center gap-2">
+                  🎉 Hoş geldiniz! Hesabınız başarıyla oluşturuldu
+                </AlertTitle>
+                <AlertDescription className="text-green-700">
+                  Artık Time Tracker'ı kullanmaya başlayabilirsiniz. Aşağıdaki formu kullanarak giriş yapın ve zamanınızı yönetmeye başlayın!
                 </AlertDescription>
               </Alert>
             ) : null}

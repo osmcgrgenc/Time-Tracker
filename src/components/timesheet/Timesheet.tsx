@@ -79,6 +79,7 @@ export default function Timesheet() {
   const [selectedProject, setSelectedProject] = useState('all');
   const [selectedTask, setSelectedTask] = useState('all');
   const [billableFilter, setBillableFilter] = useState('all');
+  const [dateError, setDateError] = useState('');
 
   // Set default date range (last 30 days)
   useEffect(() => {
@@ -91,6 +92,12 @@ export default function Timesheet() {
 
   const fetchData = async () => {
     if (!user) return;
+
+    // Validate date range before fetching
+    if (!validateDateRange(fromDate, toDate)) {
+      toast.error(dateError);
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -183,6 +190,22 @@ export default function Timesheet() {
   };
 
   const filteredTasks = tasks.filter(task => selectedProject && selectedProject !== 'all' && task.projectId === selectedProject);
+
+  // Validate date range
+  const validateDateRange = (from: string, to: string) => {
+    if (!from || !to) return true; // Allow empty dates
+
+    const fromDateObj = new Date(from);
+    const toDateObj = new Date(to);
+
+    if (fromDateObj > toDateObj) {
+      setDateError('Başlangıç tarihi bitiş tarihinden sonra olamaz');
+      return false;
+    }
+
+    setDateError('');
+    return true;
+  };
 
   const toggleEntrySelection = (entryId: string) => {
     setSelectedEntries(prev => {

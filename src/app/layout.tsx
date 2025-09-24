@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ServiceWorkerProvider } from "@/components/ServiceWorkerProvider";
 import { RoutePreloadManager } from "@/components/RouteBasedSplitting";
 import { SessionProviderWrapper } from "@/components/providers/SessionProviderWrapper";
+import { SkipLinks } from "@/components/SkipLink";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,10 +50,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="tr" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900`}
       >
+        <SkipLinks />
         <ServiceWorkerProvider>
           <RoutePreloadManager>
             <SessionProviderWrapper>

@@ -23,7 +23,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <main id="main-content">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-purple-600/10"></div>
@@ -181,6 +182,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 }

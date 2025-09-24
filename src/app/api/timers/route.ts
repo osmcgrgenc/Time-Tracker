@@ -30,20 +30,28 @@ const querySchema = z.object({
 });
 
 function computeElapsedMs(timer: any, now: Date = new Date()): number {
-  const base = timer.elapsedMs;
-  if (timer.status === 'RUNNING') {
+  // Add null checks
+  if (!timer) return 0;
+
+  const base = timer.elapsedMs || 0;
+  if (timer.status === 'RUNNING' && timer.startTime) {
     return base + (now.getTime() - new Date(timer.startTime).getTime());
   }
   return base;
 }
 
 function formatTimerResponse(timer: any): TimerResponse {
+  // Add null checks for timer object
+  if (!timer || !timer.id || !timer.status) {
+    throw new Error('Geçersiz timer verisi: Timer ID veya status bulunamadı');
+  }
+
   return {
     id: timer.id,
     status: timer.status,
     billable: timer.billable,
-    startedAt: timer.startTime.toISOString(),
-    elapsedMs: timer.elapsedMs,
+    startedAt: timer.startTime?.toISOString() || new Date().toISOString(),
+    elapsedMs: timer.elapsedMs || 0,
     currentElapsedMs: computeElapsedMs(timer),
     project: timer.project ? {
       id: timer.project.id,
@@ -148,6 +156,14 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
     return newTimer;
   });
+
+  // Add null check for timer
+  if (!timer) {
+    return createErrorResponse(
+      'Timer oluşturulamadı',
+      HTTP_STATUS.INTERNAL_ERROR
+    );
+  }
 
   return createResponse({
     timer: formatTimerResponse(timer),

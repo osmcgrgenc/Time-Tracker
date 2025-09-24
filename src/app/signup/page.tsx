@@ -56,7 +56,9 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success('Hesap başarıyla oluşturuldu! Lütfen giriş yapın.');
+        toast.success('🎉 Hoş geldiniz! Hesabınız başarıyla oluşturuldu. Şimdi giriş yapabilirsiniz.', {
+          duration: 4000,
+        });
         router.push('/login?registered=success');
       } else {
         toast.error(data.error || 'Hesap oluşturulamadı');

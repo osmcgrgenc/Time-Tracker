@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User with this email already exists' },
+        { error: 'Bu e-posta adresi ile zaten bir kullanıcı mevcut' },
         { status: 400 }
       );
     }
@@ -48,14 +48,14 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid input', details: error.issues },
+        { error: 'Geçersiz giriş', details: error.issues },
         { status: 400 }
       );
     }
 
     console.error('Registration error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Sunucu hatası' },
       { status: 500 }
     );
   }

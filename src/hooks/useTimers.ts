@@ -133,7 +133,12 @@ export function useTimers() {
         const timer = responseData?.data?.timer ?? responseData?.timer ?? null;
 
         if (!timer) {
-          throw new Error('Timer payload is missing in the response');
+          throw new Error('Timer oluşturulamadı: Geçersiz yanıt');
+        }
+
+        // Add null checks for timer properties
+        if (!timer.status || typeof timer.elapsedMs === 'undefined') {
+          throw new Error('Timer verisi eksik: Status veya elapsedMs bulunamadı');
         }
 
         setTimers(prev => [timer, ...prev]);
@@ -148,15 +153,15 @@ export function useTimers() {
           { projectId: data.projectId, taskId: data.taskId }
         );
 
-        toast.success('🚀 Timer started! +5 XP');
+        toast.success('🚀 Timer başlatıldı! +5 XP kazandınız');
         return true;
       } else {
-        toast.error('Failed to create timer');
+        toast.error('Timer oluşturulamadı');
         return false;
       }
     } catch (error) {
       console.error('Error creating timer:', error);
-      toast.error('Failed to create timer');
+      toast.error('Timer oluşturulamadı');
       return false;
     } finally {
       setIsLoading(false);
@@ -183,16 +188,16 @@ export function useTimers() {
         }
 
         setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
-        toast.success('⏸️ Timer paused');
+        toast.success('⏸️ Timer duraklatıldı');
         return true;
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || 'Failed to pause timer');
+        toast.error(errorData.error || 'Timer duraklatılamadı');
         return false;
       }
     } catch (error) {
       console.error('Error pausing timer:', error);
-      toast.error('Failed to pause timer');
+      toast.error('Timer duraklatılamadı');
       return false;
     }
   };
@@ -217,16 +222,16 @@ export function useTimers() {
         }
 
         setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
-        toast.success('▶️ Timer resumed');
+        toast.success('▶️ Timer devam ettirildi');
         return true;
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || 'Failed to resume timer');
+        toast.error(errorData.error || 'Timer devam ettirilemedi');
         return false;
       }
     } catch (error) {
       console.error('Error resuming timer:', error);
-      toast.error('Failed to resume timer');
+      toast.error('Timer devam ettirilemedi');
       return false;
     }
   };
@@ -272,15 +277,15 @@ export function useTimers() {
           { description, completedAt: new Date().toISOString() }
         );
 
-        toast.success(`🏆 Timer completed! +${xpGain} XP`);
+        toast.success(`🏆 Timer tamamlandı! +${xpGain} XP kazandınız`);
         return true;
       } else {
-        toast.error('Failed to complete timer');
+        toast.error('Timer tamamlanamadı');
         return false;
       }
     } catch (error) {
       console.error('Error completing timer:', error);
-      toast.error('Failed to complete timer');
+      toast.error('Timer tamamlanamadı');
       return false;
     }
   };
@@ -305,15 +310,15 @@ export function useTimers() {
         }
 
         setTimers(prev => prev.map(t => t.id === timerId ? updatedTimer : t));
-        toast.success('❌ Timer canceled');
+        toast.success('❌ Timer iptal edildi');
         return true;
       } else {
-        toast.error('Failed to cancel timer');
+        toast.error('Timer iptal edilemedi');
         return false;
       }
     } catch (error) {
       console.error('Error canceling timer:', error);
-      toast.error('Failed to cancel timer');
+      toast.error('Timer iptal edilemedi');
       return false;
     }
   };
