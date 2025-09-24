@@ -66,6 +66,7 @@ model User {
   xpHistory     XPHistory[]
   challenges    UserChallenge[]
   achievements  UserAchievement[]
+  passwordResetTokens PasswordResetToken[]
   // audit
   createdAt     DateTime        @default(now()) @db.Timestamptz
   updatedAt     DateTime        @updatedAt @db.Timestamptz
@@ -302,4 +303,19 @@ model UserAchievement {
   @@unique([userId, achievementId])
 
   @@map("user_achievements")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tokenHash String   @db.VarChar(255)
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  @@unique([tokenHash])
+  @@index([userId])
+  @@index([expiresAt])
+
+  @@map("password_reset_tokens")
 }

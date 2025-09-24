@@ -1,68 +1,53 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Clock, ArrowLeft, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, Clock, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-export default function SignupPage() {
+export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
+
+  const showRegistrationSuccess = useMemo(() => {
+    const registeredParam = searchParams.get('registered');
+    return registeredParam === 'success';
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Validate passwords match
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Şifreler eşleşmiyor');
-      setIsLoading(false);
-      return;
-    }
-
-    // Validate password length
-    if (formData.password.length < 6) {
-      toast.error('Şifre en az 6 karakter olmalıdır');
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
+      const result = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+        callbackUrl: '/'
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success('Hesap başarıyla oluşturuldu! Lütfen giriş yapın.');
-        router.push('/login?registered=success');
-      } else {
-        toast.error(data.error || 'Hesap oluşturulamadı');
+      
+      if (result?.error) {
+        toast.error('E-posta veya şifre hatalı, lütfen tekrar deneyin.');
+      } else if (result?.ok) {
+        toast.success('Giriş başarılı!');
+        router.push('/');
+        router.refresh(); // Session'ı yenile
       }
     } catch (error) {
-      toast.error('Kayıt sırasında bir hata oluştu');
+      toast.error('Giriş sırasında bir hata oluştu');
     } finally {
       setIsLoading(false);
     }
@@ -79,39 +64,31 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-3 rounded-full">
-              <UserPlus className="h-8 w-8 text-white" />
+              <Clock className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Hesap Oluştur</h1>
-          <p className="text-gray-600">Time Tracker'a katılın ve zamanınızı yönetmeye başlayın</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tekrar Hoş Geldiniz</h1>
+          <p className="text-gray-600">Time Tracker hesabınıza giriş yapın</p>
         </div>
 
-        {/* Signup Form */}
+        {/* Login Form */}
         <Card className="shadow-xl border-0">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl font-semibold text-center">Kayıt Ol</CardTitle>
+            <CardTitle className="text-2xl font-semibold text-center">Giriş Yap</CardTitle>
             <CardDescription className="text-center">
-              Başlamak için hesabınızı oluşturun
+              Hesabınıza erişmek için bilgilerinizi girin
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {showRegistrationSuccess ? (
+              <Alert className="mb-4">
+                <AlertTitle>Hesabınız oluşturuldu</AlertTitle>
+                <AlertDescription>
+                  Giriş yapabilmek için kayıt sırasında belirlediğiniz e-posta ve şifreyi kullanabilirsiniz.
+                </AlertDescription>
+              </Alert>
+            ) : null}
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">
-                  Ad Soyad
-                </Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Ad ve soyadınızı girin"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  required
-                  className="h-11"
-                  disabled={isLoading}
-                />
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
                   E-posta Adresi
@@ -136,11 +113,10 @@ export default function SignupPage() {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Şifre oluşturun (en az 6 karakter)"
+                    placeholder="Şifrenizi girin"
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
                     required
-                    minLength={6}
                     className="h-11 pr-10"
                     disabled={isLoading}
                   />
@@ -155,30 +131,13 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm font-medium">
-                  Şifre Onayı
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="Şifrenizi tekrar girin"
-                    value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    required
-                    className="h-11 pr-10"
-                    disabled={isLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    disabled={isLoading}
-                  >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
+              <div className="text-right">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-medium text-orange-600 hover:text-orange-500 transition-colors"
+                >
+                  Şifremi unuttum
+                </Link>
               </div>
 
               <Button 
@@ -186,19 +145,19 @@ export default function SignupPage() {
                 className="w-full h-11 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium"
                 disabled={isLoading}
               >
-                {isLoading ? 'Hesap oluşturuluyor...' : 'Hesap Oluştur'}
+                {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
               </Button>
             </form>
 
             {/* Divider */}
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Zaten hesabınız var mı?{' '}
+                Hesabınız yok mu?{' '}
                 <Link 
-                  href="/login" 
+                  href="/signup" 
                   className="font-medium text-orange-600 hover:text-orange-500 transition-colors"
                 >
-                  Buradan giriş yapın
+                  Buradan kayıt olun
                 </Link>
               </p>
             </div>
