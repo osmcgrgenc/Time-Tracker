@@ -1,44 +1,60 @@
 {
   "hero": {
-    "badge": "New Features Available",
-    "title": "TimeTracker",
-    "subtitle": "Track your time, achieve your goals",
-    "description": "Boost your productivity with our advanced gamified time tracking system",
-    "getStarted": "Get Started",
+    "badge": "End of Digital Chaos",
+    "title": "Transform Digital Chaos into Focus",
+    "subtitle": "Rediscover your productivity with Pomodoro technique and gamification",
+    "description": "Improve your work habits and focus on your goals with Verimly",
+    "getStarted": "Start as Individual",
+    "getStartedTeam": "Try for My Team",
     "login": "Sign In",
     "learnMore": "Learn More"
   },
   "features": {
-    "title": "Why TimeTracker?",
-    "goalTracking": {
-      "title": "Goal Tracking",
-      "description": "Set and track your daily and weekly goals"
+    "title": "Why Verimly?",
+    "pomodoro": {
+      "title": "Focused Work",
+      "description": "Maximize your productivity with 25-minute focus sessions"
     },
     "gamification": {
-      "title": "Gamification",
-      "description": "Earn XP, level up, and celebrate your achievements"
+      "title": "Motivation System",
+      "description": "Make work fun with badges, levels, and achievements"
+    },
+    "taskManagement": {
+      "title": "Smart Organization",
+      "description": "Prioritize your tasks and track your progress"
     },
     "analytics": {
-      "title": "Detailed Analytics",
-      "description": "Analyze your time usage and improve productivity"
-    },
-    "quickStart": {
-      "title": "Quick Start",
-      "description": "Set up in minutes and start using right away"
-    },
-    "teamWork": {
-      "title": "Team Collaboration",
-      "description": "Work with your team and track progress together"
-    },
-    "pomodoro": {
-      "title": "Pomodoro Timer",
-      "description": "Use the Pomodoro technique to improve focus"
+      "title": "Detailed Analysis",
+      "description": "Analyze your work habits and discover areas for improvement"
     }
   },
   "cta": {
     "title": "Start today",
-    "description": "Create a free account and improve your time management",
+    "description": "Create a free account and transform digital chaos into focus",
     "signup": "Sign Up Free",
     "login": "Sign In"
+  },
+  "socialProof": {
+    "title": "Thousands of users improved their productivity with Verimly",
+    "testimonials": [
+      {
+        "name": "John Smith",
+        "role": "Software Developer",
+        "content": "My focus time increased by 200% thanks to Verimly. The Pomodoro technique really works!",
+        "rating": 5
+      },
+      {
+        "name": "Sarah Johnson",
+        "role": "Project Manager",
+        "content": "We use it as a team. Everyone's productivity has visibly increased.",
+        "rating": 5
+      },
+      {
+        "name": "Mike Davis",
+        "role": "Freelancer",
+        "content": "The gamification feature keeps my motivation constantly high. Amazing app!",
+        "rating": 5
+      }
+    ]
   }
 }

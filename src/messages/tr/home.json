@@ -1,44 +1,60 @@
 {
   "hero": {
-    "badge": "Yeni Özellikler Mevcut",
-    "title": "TimeTracker",
-    "subtitle": "Zamanınızı takip edin, hedeflerinize ulaşın",
-    "description": "Gamification özellikli gelişmiş zaman takip sistemi ile produktivitinizi artırın",
-    "getStarted": "Başlayın",
+    "badge": "Dijital Kaosun Sonu",
+    "title": "Dijital Kaosu Odaklanmaya Dönüştürün",
+    "subtitle": "Pomodoro tekniği ve oyunlaştırma ile verimliliğinizi yeniden keşfedin",
+    "description": "Verimly ile çalışma alışkanlıklarınızı geliştirin ve hedeflerinize odaklanın",
+    "getStarted": "Bireysel Olarak Başla",
+    "getStartedTeam": "Takımım İçin Dene",
     "login": "Giriş Yap",
     "learnMore": "Daha Fazla Bilgi"
   },
   "features": {
-    "title": "Neden TimeTracker?",
-    "goalTracking": {
-      "title": "Hedef Takibi",
-      "description": "Günlük ve haftalık hedeflerinizi belirleyin ve takip edin"
+    "title": "Neden Verimly?",
+    "pomodoro": {
+      "title": "Odaklanmış Çalışma",
+      "description": "25 dakikalık odaklanma seansları ile verimliliğinizi maksimize edin"
     },
     "gamification": {
-      "title": "Gamification",
-      "description": "XP kazanın, seviye atlayın ve başarılarınızı kutlayın"
+      "title": "Motivasyon Sistemi",
+      "description": "Rozetler, seviyeler ve başarımlarla çalışmayı eğlenceli hale getirin"
+    },
+    "taskManagement": {
+      "title": "Akıllı Organizasyon",
+      "description": "Görevlerinizi önceliklendirin ve ilerlemenizi takip edin"
     },
     "analytics": {
       "title": "Detaylı Analiz",
-      "description": "Zaman kullanımınızı analiz edin ve verimliliğinizi artırın"
-    },
-    "quickStart": {
-      "title": "Hızlı Başlangıç",
-      "description": "Dakikalar içinde kurulum yapın ve kullanmaya başlayın"
-    },
-    "teamWork": {
-      "title": "Takım Çalışması",
-      "description": "Ekibinizle birlikte çalışın ve ilerlemeyi takip edin"
-    },
-    "pomodoro": {
-      "title": "Pomodoro Timer",
-      "description": "Odaklanmanızı artırmak için Pomodoro tekniğini kullanın"
+      "description": "Çalışma alışkanlıklarınızı analiz edin ve gelişim alanlarını keşfedin"
     }
   },
   "cta": {
     "title": "Bugün başlayın",
-    "description": "Ücretsiz hesap oluşturun ve zaman yönetiminizi geliştirin",
+    "description": "Ücretsiz hesap oluşturun ve dijital kaosu odaklanmaya dönüştürün",
     "signup": "Ücretsiz Kayıt Ol",
     "login": "Giriş Yap"
+  },
+  "socialProof": {
+    "title": "Binlerce kullanıcı Verimly ile verimliliğini artırdı",
+    "testimonials": [
+      {
+        "name": "Ahmet Yılmaz",
+        "role": "Yazılım Geliştirici",
+        "content": "Verimly sayesinde odaklanma sürem %200 arttı. Pomodoro tekniği gerçekten işe yarıyor!",
+        "rating": 5
+      },
+      {
+        "name": "Elif Kaya",
+        "role": "Proje Yöneticisi",
+        "content": "Takım olarak kullanıyoruz. Herkesin verimliliği gözle görülür şekilde arttı.",
+        "rating": 5
+      },
+      {
+        "name": "Mehmet Demir",
+        "role": "Freelancer",
+        "content": "Oyunlaştırma özelliği motivasyonumu sürekli yüksek tutuyor. Harika bir uygulama!",
+        "rating": 5
+      }
+    ]
   }
 }
