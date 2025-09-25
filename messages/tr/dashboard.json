@@ -1,0 +1,16 @@
+{
+  "title": "Kontrol Paneli",
+  "welcome": "Hoş geldiniz",
+  "todayStats": "Bugünün İstatistikleri",
+  "totalTime": "Toplam Süre",
+  "activeProjects": "Aktif Projeler",
+  "completedTasks": "Tamamlanan Görevler",
+  "currentXP": "Mevcut XP",
+  "level": "Seviye",
+  "achievements": "Başarılar",
+  "recentActivity": "Son Aktiviteler",
+  "quickActions": "Hızlı İşlemler",
+  "startTimer": "Timer Başlat",
+  "addProject": "Proje Ekle",
+  "addTask": "Görev Ekle"
+}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { getLocaleFromHeaders, createI18nErrorResponse, createI18nResponse } from '@/lib/i18n-server';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -11,17 +12,19 @@ const registerSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const locale = await getLocaleFromHeaders();
     const body = await request.json();
     const { email, name, password } = registerSchema.parse(body);
+    
     // Check if user already exists
     const existingUser = await db.user.findUnique({
       where: { email },
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'Bu e-posta adresi ile zaten bir kullanıcı mevcut' },
-        { status: 400 }
+      return createI18nErrorResponse(
+        'auth.errors.userExists',
+        { status: 400, locale }
       );
     }
 
@@ -43,19 +46,32 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ user }, { status: 201 });
+    return createI18nResponse(
+      { user },
+      { 
+        status: 201, 
+        locale,
+        messageKey: 'auth.success.registered'
+      }
+    );
   } catch (error) {
+    const locale = await getLocaleFromHeaders();
+    
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Geçersiz giriş', details: error.issues },
-        { status: 400 }
+      return createI18nErrorResponse(
+        'errors.validation',
+        { 
+          status: 400, 
+          locale,
+          details: error.issues 
+        }
       );
     }
 
     console.error('Registration error:', error);
-    return NextResponse.json(
-      { error: 'Sunucu hatası' },
-      { status: 500 }
+    return createI18nErrorResponse(
+      'errors.server',
+      { status: 500, locale }
     );
   }
 }

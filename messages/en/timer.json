@@ -1,0 +1,17 @@
+{
+  "start": "Start",
+  "stop": "Stop",
+  "pause": "Pause",
+  "resume": "Resume",
+  "reset": "Reset",
+  "selectProject": "Select Project",
+  "selectTask": "Select Task",
+  "description": "Description",
+  "timeElapsed": "Time Elapsed",
+  "pomodoroMode": "Pomodoro Mode",
+  "focusTime": "Focus Time",
+  "breakTime": "Break Time",
+  "longBreak": "Long Break",
+  "session": "Session",
+  "break": "Break"
+}

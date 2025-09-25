@@ -1,0 +1,23 @@
+{
+  "level": "Seviye",
+  "xp": "XP",
+  "achievements": "Başarılar",
+  "badges": "Rozetler",
+  "streak": "Seri",
+  "dayStreak": "Gün Serisi",
+  "weekStreak": "Hafta Serisi",
+  "points": "Puan",
+  "leaderboard": "Lider Tablosu",
+  "rank": "Sıralama",
+  "progress": "İlerleme",
+  "nextLevel": "Sonraki Seviye",
+  "unlocked": "Kilidi Açıldı",
+  "locked": "Kilitli",
+  "earnedBadges": "Kazanılan Rozetler",
+  "availableBadges": "Mevcut Rozetler",
+  "dailyGoal": "Günlük Hedef",
+  "weeklyGoal": "Haftalık Hedef",
+  "monthlyGoal": "Aylık Hedef",
+  "goalAchieved": "Hedef Başarıldı",
+  "congratulations": "Tebrikler!"
+}

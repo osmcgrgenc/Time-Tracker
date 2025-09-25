@@ -1,0 +1,35 @@
+{
+  "title": "Admin Panel",
+  "users": "Users",
+  "projects": "Projects",
+  "settings": "Settings",
+  "reports": "Reports",
+  "analytics": "Analytics",
+  "userManagement": "User Management",
+  "addUser": "Add User",
+  "editUser": "Edit User",
+  "deleteUser": "Delete User",
+  "userRole": "User Role",
+  "admin": "Admin",
+  "user": "User",
+  "manager": "Manager",
+  "languages": {
+    "title": "Language Management",
+    "addLanguage": "Add Language",
+    "editLanguage": "Edit Language",
+    "deleteLanguage": "Delete Language",
+    "languageCode": "Language Code",
+    "languageName": "Language Name",
+    "isDefault": "Is Default",
+    "isActive": "Is Active"
+  },
+  "auth": {
+    "title": "Authorization",
+    "permissions": "Permissions",
+    "roles": "Roles",
+    "accessControl": "Access Control"
+  },
+  "systemSettings": "System Settings",
+  "backupRestore": "Backup & Restore",
+  "logs": "Logs"
+}

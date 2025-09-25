@@ -1,0 +1,20 @@
+{
+  "general": "An error occurred",
+  "networkError": "Network error",
+  "serverError": "Server error",
+  "notFound": "Not found",
+  "unauthorized": "Unauthorized access",
+  "forbidden": "Access forbidden",
+  "badRequest": "Bad request",
+  "timeout": "Timeout",
+  "connectionFailed": "Connection failed",
+  "invalidData": "Invalid data",
+  "fileNotFound": "File not found",
+  "permissionDenied": "Permission denied",
+  "sessionExpired": "Session expired",
+  "tooManyRequests": "Too many requests",
+  "maintenanceMode": "Maintenance mode",
+  "unexpectedError": "Unexpected error",
+  "tryAgain": "Try again",
+  "contactSupport": "Contact support"
+}

@@ -1,0 +1,44 @@
+{
+  "hero": {
+    "badge": "Yeni Özellikler Mevcut",
+    "title": "TimeTracker",
+    "subtitle": "Zamanınızı takip edin, hedeflerinize ulaşın",
+    "description": "Gamification özellikli gelişmiş zaman takip sistemi ile produktivitinizi artırın",
+    "getStarted": "Başlayın",
+    "login": "Giriş Yap",
+    "learnMore": "Daha Fazla Bilgi"
+  },
+  "features": {
+    "title": "Neden TimeTracker?",
+    "goalTracking": {
+      "title": "Hedef Takibi",
+      "description": "Günlük ve haftalık hedeflerinizi belirleyin ve takip edin"
+    },
+    "gamification": {
+      "title": "Gamification",
+      "description": "XP kazanın, seviye atlayın ve başarılarınızı kutlayın"
+    },
+    "analytics": {
+      "title": "Detaylı Analiz",
+      "description": "Zaman kullanımınızı analiz edin ve verimliliğinizi artırın"
+    },
+    "quickStart": {
+      "title": "Hızlı Başlangıç",
+      "description": "Dakikalar içinde kurulum yapın ve kullanmaya başlayın"
+    },
+    "teamWork": {
+      "title": "Takım Çalışması",
+      "description": "Ekibinizle birlikte çalışın ve ilerlemeyi takip edin"
+    },
+    "pomodoro": {
+      "title": "Pomodoro Timer",
+      "description": "Odaklanmanızı artırmak için Pomodoro tekniğini kullanın"
+    }
+  },
+  "cta": {
+    "title": "Bugün başlayın",
+    "description": "Ücretsiz hesap oluşturun ve zaman yönetiminizi geliştirin",
+    "signup": "Ücretsiz Kayıt Ol",
+    "login": "Giriş Yap"
+  }
+}

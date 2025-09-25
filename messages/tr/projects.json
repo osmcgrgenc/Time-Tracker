@@ -1,0 +1,19 @@
+{
+  "title": "Projeler",
+  "addProject": "Yeni Proje",
+  "editProject": "Projeyi Düzenle",
+  "deleteProject": "Projeyi Sil",
+  "projectName": "Proje Adı",
+  "projectDescription": "Proje Açıklaması",
+  "projectColor": "Proje Rengi",
+  "status": "Durum",
+  "active": "Aktif",
+  "completed": "Tamamlandı",
+  "archived": "Arşivlendi",
+  "totalTime": "Toplam Süre",
+  "tasksCount": "Görev Sayısı",
+  "progress": "İlerleme",
+  "deadline": "Son Tarih",
+  "noProjects": "Henüz proje yok",
+  "createFirst": "İlk projenizi oluşturun"
+}

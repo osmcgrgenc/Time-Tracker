@@ -1,0 +1,14 @@
+{
+  "home": "Ana Sayfa",
+  "dashboard": "Kontrol Paneli",
+  "timesheet": "Zaman Çizelgesi",
+  "monitoring": "İzleme",
+  "projects": "Projeler",
+  "tasks": "Görevler",
+  "reports": "Raporlar",
+  "settings": "Ayarlar",
+  "profile": "Profil",
+  "logout": "Çıkış Yap",
+  "login": "Giriş Yap",
+  "signup": "Kayıt Ol"
+}

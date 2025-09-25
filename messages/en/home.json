@@ -1,0 +1,44 @@
+{
+  "hero": {
+    "badge": "New Features Available",
+    "title": "TimeTracker",
+    "subtitle": "Track your time, achieve your goals",
+    "description": "Boost your productivity with our advanced gamified time tracking system",
+    "getStarted": "Get Started",
+    "login": "Sign In",
+    "learnMore": "Learn More"
+  },
+  "features": {
+    "title": "Why TimeTracker?",
+    "goalTracking": {
+      "title": "Goal Tracking",
+      "description": "Set and track your daily and weekly goals"
+    },
+    "gamification": {
+      "title": "Gamification",
+      "description": "Earn XP, level up, and celebrate your achievements"
+    },
+    "analytics": {
+      "title": "Detailed Analytics",
+      "description": "Analyze your time usage and improve productivity"
+    },
+    "quickStart": {
+      "title": "Quick Start",
+      "description": "Set up in minutes and start using right away"
+    },
+    "teamWork": {
+      "title": "Team Collaboration",
+      "description": "Work with your team and track progress together"
+    },
+    "pomodoro": {
+      "title": "Pomodoro Timer",
+      "description": "Use the Pomodoro technique to improve focus"
+    }
+  },
+  "cta": {
+    "title": "Start today",
+    "description": "Create a free account and improve your time management",
+    "signup": "Sign Up Free",
+    "login": "Sign In"
+  }
+}

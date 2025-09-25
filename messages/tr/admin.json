@@ -1,0 +1,35 @@
+{
+  "title": "Yönetim Paneli",
+  "users": "Kullanıcılar",
+  "projects": "Projeler",
+  "settings": "Ayarlar",
+  "reports": "Raporlar",
+  "analytics": "Analitik",
+  "userManagement": "Kullanıcı Yönetimi",
+  "addUser": "Kullanıcı Ekle",
+  "editUser": "Kullanıcıyı Düzenle",
+  "deleteUser": "Kullanıcıyı Sil",
+  "userRole": "Kullanıcı Rolü",
+  "admin": "Yönetici",
+  "user": "Kullanıcı",
+  "manager": "Yönetici",
+  "languages": {
+    "title": "Dil Yönetimi",
+    "addLanguage": "Dil Ekle",
+    "editLanguage": "Dili Düzenle",
+    "deleteLanguage": "Dili Sil",
+    "languageCode": "Dil Kodu",
+    "languageName": "Dil Adı",
+    "isDefault": "Varsayılan",
+    "isActive": "Aktif"
+  },
+  "auth": {
+    "title": "Yetkilendirme",
+    "permissions": "İzinler",
+    "roles": "Roller",
+    "accessControl": "Erişim Kontrolü"
+  },
+  "systemSettings": "Sistem Ayarları",
+  "backupRestore": "Yedekleme ve Geri Yükleme",
+  "logs": "Loglar"
+}

@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { LayoutDashboard, FileText, Trophy, Target, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useComponentPreloader } from '@/components/LazyComponents';
+import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface NavigationProps {
   activeView: 'dashboard' | 'timesheet' | 'monitoring';
@@ -18,6 +20,8 @@ interface NavigationProps {
 
 export function Navigation({ activeView, onViewChange, userStats }: NavigationProps) {
   const { preloadOnHover } = useComponentPreloader();
+  const t = useTranslations('navigation');
+  const tCommon = useTranslations('common');
   
   const buttonClasses = useMemo(() => ({
     base: "relative flex items-center gap-3 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500/50",
@@ -47,7 +51,7 @@ export function Navigation({ activeView, onViewChange, userStats }: NavigationPr
               )}
             >
               <LayoutDashboard className="h-4 w-4" />
-              Dashboard
+              {t('dashboard')}
             </Button>
             <Button
               onClick={() => onViewChange('timesheet')}
@@ -57,7 +61,7 @@ export function Navigation({ activeView, onViewChange, userStats }: NavigationPr
               )}
             >
               <FileText className="h-4 w-4" />
-              Timesheet
+              {t('timesheet')}
             </Button>
             <Button
               onClick={() => onViewChange('monitoring')}
@@ -68,22 +72,25 @@ export function Navigation({ activeView, onViewChange, userStats }: NavigationPr
               {...preloadOnHover('monitoringDashboard')}
             >
               <Activity className="h-4 w-4" />
-              Monitoring
+              {t('monitoring')}
             </Button>
           </div>
 
-          {/* Gamification Stats */}
-          {userStats && (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full">
-                <Trophy className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm font-medium text-yellow-800">Level {userStats.level}</span>
-              </div>
-              <div className="text-sm text-gray-600">
-                <span className="font-medium">{userStats.streak}</span> day streak
-              </div>
-            </div>
-          )}
+          {/* User Stats & Language Switcher */}
+          <div className="flex items-center gap-4">
+            {userStats && (
+              <>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-full">
+                  <Trophy className="h-4 w-4 text-yellow-600" />
+                  <span className="text-sm font-medium text-yellow-800">{tCommon('level')} {userStats.level}</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">{userStats.streak}</span> {tCommon('dayStreak')}
+                </div>
+              </>
+            )}
+            <LanguageSwitcher variant="ghost" />
+          </div>
         </div>
       </div>
     </div>

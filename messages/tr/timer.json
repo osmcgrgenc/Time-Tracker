@@ -1,0 +1,17 @@
+{
+  "start": "Başlat",
+  "stop": "Durdur",
+  "pause": "Duraklat",
+  "resume": "Devam Et",
+  "reset": "Sıfırla",
+  "selectProject": "Proje Seç",
+  "selectTask": "Görev Seç",
+  "description": "Açıklama",
+  "timeElapsed": "Geçen Süre",
+  "pomodoroMode": "Pomodoro Modu",
+  "focusTime": "Odaklanma Süresi",
+  "breakTime": "Mola Süresi",
+  "longBreak": "Uzun Mola",
+  "session": "Oturum",
+  "break": "Mola"
+}

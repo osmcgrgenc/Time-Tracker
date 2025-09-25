@@ -1,0 +1,19 @@
+{
+  "title": "Projects",
+  "addProject": "New Project",
+  "editProject": "Edit Project",
+  "deleteProject": "Delete Project",
+  "projectName": "Project Name",
+  "projectDescription": "Project Description",
+  "projectColor": "Project Color",
+  "status": "Status",
+  "active": "Active",
+  "completed": "Completed",
+  "archived": "Archived",
+  "totalTime": "Total Time",
+  "tasksCount": "Tasks Count",
+  "progress": "Progress",
+  "deadline": "Deadline",
+  "noProjects": "No projects yet",
+  "createFirst": "Create your first project"
+}
