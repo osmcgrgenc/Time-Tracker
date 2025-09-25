@@ -6,7 +6,7 @@ export default getRequestConfig(async ({locale}) => {
   console.log('🌐 Request config - locale:', locale);
   
   // Default to Turkish if no locale provided
-  const finalLocale = (locale || routing.defaultLocale) in routing.locales ? locale : routing.defaultLocale;
+  const finalLocale = (locale && routing.locales.includes(locale as any)) ? locale : routing.defaultLocale;
   
   console.log('✅ Request config - using locale:', finalLocale);
   const messages = {
