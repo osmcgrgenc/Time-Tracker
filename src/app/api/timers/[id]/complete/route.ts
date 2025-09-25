@@ -9,7 +9,7 @@ import {
   ERROR_MESSAGES,
   parseRequestBody
 } from '@/lib/api-helpers';
-import { withAuth, requireResourceOwnership } from '@/lib/auth-middleware';
+import { withAuth } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import { sanitizeForLog } from '@/lib/validation';
 
@@ -18,21 +18,16 @@ const completeTimerSchema = z.object({
   date: z.string().optional(),
 });
 
-export const POST = withAuth(withErrorHandling(async (
-  request: NextRequest,
-  { userId, params }: { userId: string; params: Promise<{ id: string }> }
-) => {
-  const resolvedParams = await params;
+export const POST = withAuth(async (request: NextRequest, userId: string) => {
+  const { pathname } = new URL(request.url);
+  const timerId = pathname.split('/')[3]; // Extract ID from /api/timers/[id]/complete
   const startTime = Date.now();
   const method = 'POST';
-  const endpoint = `/api/timers/${resolvedParams.id}/complete`;
+  const endpoint = `/api/timers/${timerId}/complete`;
   
   logger.apiRequest(method, endpoint);
-  
-  const timerId = resolvedParams.id;
-  const { description, date } = await parseRequestBody(request, completeTimerSchema);
-  
-  await requireResourceOwnership(userId, 'timer', timerId);
+  const body = await request.json().catch(() => ({}));
+  const { description, date } = completeTimerSchema.parse(body);
 
   const timer = await db.timer.findUnique({
       where: { id: timerId },
@@ -129,4 +124,4 @@ export const POST = withAuth(withErrorHandling(async (
     const duration = Date.now() - startTime;
     logger.apiResponse(method, endpoint, HTTP_STATUS.OK, duration, userId);
     return response;
-}));
+});
