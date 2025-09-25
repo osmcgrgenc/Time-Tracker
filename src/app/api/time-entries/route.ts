@@ -5,10 +5,10 @@ import { validateUserId, validateDateString, sanitizeForLog } from '@/lib/valida
 
 const getTimeEntriesSchema = z.object({
   userId: z.string(),
-  from: z.string().optional(),
-  to: z.string().optional(),
-  projectId: z.string().optional(),
-  taskId: z.string().optional(),
+  from: z.string().transform(val => val === '' ? undefined : val).optional(),
+  to: z.string().transform(val => val === '' ? undefined : val).optional(),
+  projectId: z.string().transform(val => val === '' ? undefined : val).optional(),
+  taskId: z.string().transform(val => val === '' ? undefined : val).optional(),
   billable: z.boolean().optional(),
 });
 
@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
     };
 
     const validatedParams = getTimeEntriesSchema.parse(params);
-    validateUserId(validatedParams.userId);
 
     const where: any = { userId: validatedParams.userId };
     

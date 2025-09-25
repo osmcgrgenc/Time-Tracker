@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
 import { Prisma, Priority } from '@prisma/client';
+import { withAuth } from '@/lib/auth';
 
 const createTaskSchema = z.object({
-  userId: z.string(),
   projectId: z.string(),
   title: z.string().min(1),
   description: z.string().optional(),
@@ -86,10 +86,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest, userId: string) => {
   try {
     const body = await request.json();
-    const { userId, projectId, title, description, completed, priority, assigneeId } = createTaskSchema.parse(body);
+    const { projectId, title, description, completed, priority, assigneeId } = createTaskSchema.parse(body);
 
     // Verify project exists and user has access
     const project = await db.project.findFirst({
@@ -146,4 +146,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
