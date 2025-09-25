@@ -99,7 +99,7 @@ export default function Dashboard() {
                   <Target className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-semibold text-gray-900">TimeTracker</h1>
+                  <h1 className="text-lg font-semibold text-gray-900">Verimly</h1>
                   <p className="text-sm text-gray-500">Welcome back, {user.name || user.email}</p>
                 </div>
               </div>

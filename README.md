@@ -1,6 +1,6 @@
-# 🚀 TimeTracker - Gamified Zaman Takip Uygulaması
+# 🚀 Verimly - Gamified Zaman Takip Uygulaması
 
-**TimeTracker**, modern ve gamified özelliklere sahip profesyonel bir zaman takip uygulamasıdır. Kullanıcıların çalışma sürelerini takip etmelerini, projelerini yönetmelerini ve motivasyonlarını artırmalarını sağlayan kapsamlı bir platform sunar.
+**Verimly**, modern ve gamified özelliklere sahip profesyonel bir zaman takip uygulamasıdır. Kullanıcıların çalışma sürelerini takip etmelerini, projelerini yönetmelerini ve motivasyonlarını artırmalarını sağlayan kapsamlı bir platform sunar.
 
 ## 📋 İçindekiler
 
@@ -103,7 +103,7 @@ npm install
 `.env.local` dosyası oluşturun:
 ```env
 # Veritabanı
-DATABASE_URL="postgresql://username:password@localhost:5432/timetracker"
+DATABASE_URL="postgresql://username:password@localhost:5432/verimly"
 
 # NextAuth
 NEXTAUTH_SECRET="your-secret-key"
@@ -390,4 +390,4 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 
 ---
 
-**TimeTracker** ile çalışma verimliliğinizi artırın ve hedeflerinize ulaşın! 🚀
+**Verimly** ile çalışma verimliliğinizi artırın ve hedeflerinize ulaşın! 🚀

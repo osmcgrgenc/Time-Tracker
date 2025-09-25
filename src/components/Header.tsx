@@ -1,17 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Link } from '@/i18n/routing';
+import { useLocale, useTranslations } from 'next-intl';
 import { Clock, Menu, X } from 'lucide-react';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { Button } from './ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const locale = useLocale();
   const t = useTranslations('common');
-  const nav = useTranslations('navigation');
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -25,35 +25,35 @@ export function Header() {
               <Clock className="h-6 w-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              TimeTracker
+              Verimly
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link 
-              href="/" 
-              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
-            >
-              {t('home')}
+          <div className="hidden md:flex md:gap-x-12">
+            <Link href="#features" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600 transition-colors" onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+            }}>
+              {t('features')}
             </Link>
-            <Link 
-              href="/#features" 
-              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
-            >
-              {nav('features')}
+            <Link href="#pricing" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600 transition-colors" onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+            }}>
+              {t('pricing')}
             </Link>
-            <Link 
-              href="/#about" 
-              className="text-gray-600 hover:text-gray-900 transition-colors font-medium"
-            >
-              {nav('about')}
+            <Link href="#faq" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600 transition-colors" onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' });
+            }}>
+              {t('faq')}
             </Link>
-          </nav>
+          </div>
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <LanguageSwitcher variant="ghost" />
+            <LanguageSwitcher variant="ghost" locale={locale} />
             <Link href="/login">
               <Button variant="ghost" size="sm">
                 {t('login')}
@@ -92,31 +92,45 @@ export function Header() {
             className="md:hidden border-t bg-white/95 backdrop-blur-md"
           >
             <div className="container mx-auto px-4 py-4 space-y-4">
-              <Link 
-                href="/" 
-                className="block py-2 text-gray-600 hover:text-gray-900 transition-colors font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('home')}
-              </Link>
-              <Link 
-                href="/#features" 
-                className="block py-2 text-gray-600 hover:text-gray-900 transition-colors font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {nav('features')}
-              </Link>
-              <Link 
-                href="/#about" 
-                className="block py-2 text-gray-600 hover:text-gray-900 transition-colors font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {nav('about')}
-              </Link>
+              <div className="space-y-2 py-6">
+                <Link
+                  href="#features"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsMenuOpen(false);
+                    document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  {t('features')}
+                </Link>
+                <Link
+                  href="#pricing"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsMenuOpen(false);
+                    document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  {t('pricing')}
+                </Link>
+                <Link
+                  href="#faq"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsMenuOpen(false);
+                    document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  {t('faq')}
+                </Link>
+              </div>
               
               <div className="pt-4 border-t space-y-3">
                 <div className="flex justify-center">
-                  <LanguageSwitcher variant="ghost" />
+                  <LanguageSwitcher variant="ghost" locale={locale} />
                 </div>
                 <Link href="/login" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="ghost" size="sm" className="w-full">

@@ -41,7 +41,7 @@
   "useNavigation": "• Use the navigation menu to find what you're looking for",
   "returnHome": "• Return to the homepage and start over",
   "createAccount": "Create Account",
-  "joinTimeTracker": "Join Time Tracker and start managing your time",
+  "joinTimeTracker": "Join Verimly and start managing your time",
   "signUp": "Sign Up",
   "getStarted": "Create your account to get started",
   "fullName": "Full Name",
@@ -60,5 +60,12 @@
   "passwordTooShort": "Password must be at least 6 characters",
   "welcomeMessage": "🎉 Welcome! Your account has been successfully created. You can now log in.",
   "accountCreationFailed": "Account creation failed",
-  "registrationError": "An error occurred during registration"
+  "registrationError": "An error occurred during registration",
+  "logout": "Logout",
+  "profile": "Profile",
+  "settings": "Settings",
+  "features": "Features",
+  "about": "About",
+  "pricing": "Pricing",
+  "faq": "FAQ"
 }

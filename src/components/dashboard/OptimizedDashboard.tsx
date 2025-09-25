@@ -106,7 +106,7 @@ export default function OptimizedDashboard() {
                 </div>
                 <div>
                   <h1 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    TimeTracker Pro
+                    Verimly Pro
                   </h1>
                   <XPBar 
                     level={userStats.level}

@@ -117,7 +117,7 @@ export const OptimizedLogo: React.FC<{
   return (
     <OptimizedImage
       src={`/images/logo-${variant}.svg`}
-      alt="TimeTracker Logo"
+      alt="Verimly Logo"
       width={dimensions[size].width}
       height={dimensions[size].height}
       className={className}

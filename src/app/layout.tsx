@@ -22,15 +22,15 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  authors: [{ name: 'TimeTracker Team' }],
-  creator: 'TimeTracker Team',
-  publisher: 'TimeTracker',
+  authors: [{ name: 'Verimly Team' }],
+  creator: 'Verimly Team',
+  publisher: 'Verimly',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://timetracker.codifya.com'),
+  metadataBase: new URL('https://verimly.codifya.com'),
   alternates: {
     canonical: '/',
   },

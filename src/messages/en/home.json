@@ -36,25 +36,117 @@
   },
   "socialProof": {
     "title": "Thousands of users improved their productivity with Verimly",
-    "testimonials": [
-      {
+    "testimonials": {
+      "0":{
         "name": "John Smith",
         "role": "Software Developer",
         "content": "My focus time increased by 200% thanks to Verimly. The Pomodoro technique really works!",
         "rating": 5
       },
-      {
+      "1":{
         "name": "Sarah Johnson",
         "role": "Project Manager",
         "content": "We use it as a team. Everyone's productivity has visibly increased.",
         "rating": 5
       },
-      {
+      "2":{
         "name": "Mike Davis",
         "role": "Freelancer",
         "content": "The gamification feature keeps my motivation constantly high. Amazing app!",
         "rating": 5
       }
-    ]
+    }
+  },
+  "stats": {
+    "users": "10,000+",
+    "usersLabel": "Active Users",
+    "sessions": "500,000+",
+    "sessionsLabel": "Completed Sessions",
+    "satisfaction": "98%",
+    "satisfactionLabel": "User Satisfaction"
+  },
+  "pricing": {
+    "title": "Choose Your Plan",
+    "subtitle": "Start free and upgrade when you're ready",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "price": "Free",
+        "period": "forever",
+        "features": [
+          "5 Projects",
+          "Basic Pomodoro Timer",
+          "Simple Reports",
+          "Mobile App Access"
+        ],
+        "cta": "Get Started",
+        "popular": false
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "$9",
+        "period": "per month",
+        "features": [
+          "Unlimited Projects",
+          "Advanced Analytics",
+          "Team Collaboration",
+          "Priority Support",
+          "Custom Themes"
+        ],
+        "cta": "Start Free Trial",
+        "popular": true
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "$29",
+        "period": "per month",
+        "features": [
+          "Everything in Pro",
+          "Advanced Team Management",
+          "Custom Integrations",
+          "Dedicated Support",
+          "SSO & Security"
+        ],
+        "cta": "Contact Sales",
+        "popular": false
+      }
+    },
+    "guarantee": "14-day free trial",
+    "security": "Enterprise-grade security"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to the most common questions about Verimly",
+    "questions": {
+      "0": {
+        "question": "How does Verimly work?",
+        "answer": "Verimly is based on the Pomodoro technique. It increases your productivity with 25-minute focus sessions and 5-minute breaks. The gamification feature also keeps your motivation high."
+      },
+      "1": {
+        "question": "Is the free plan sufficient?",
+        "answer": "The free plan is quite sufficient for individual use. It includes 5 projects, basic pomodoro timer, and simple reports. You can choose the Pro plan for more advanced features."
+      },
+      "2": {
+        "question": "Can we use it as a team?",
+        "answer": "Yes! Our Pro and Enterprise plans include team collaboration features. You can track team members' progress, create shared projects, and get detailed reports."
+      },
+      "3": {
+        "question": "Is there a mobile app?",
+        "answer": "Yes, we have mobile apps for iOS and Android. It provides full synchronization with the web app, so you can track your work from anywhere."
+      },
+      "4": {
+        "question": "Is my data safe?",
+        "answer": "Absolutely! All your data is protected with SSL encryption. We have GDPR-compliant data processing policies and never share your data with third parties."
+      },
+      "5": {
+        "question": "What happens when I want to cancel?",
+        "answer": "You can cancel your subscription at any time. After cancellation, you can continue using premium features until the end of the current period. Your data is preserved."
+      }
+    },
+    "contact": {
+      "title": "Have other questions?",
+      "description": "Our support team is happy to help you",
+      "cta": "Contact Us"
+    }
   }
 }

@@ -41,7 +41,7 @@
   "useNavigation": "• Aradığınızı bulmak için navigasyon menüsünü kullanın",
   "returnHome": "• Ana sayfaya dönün ve yeniden başlayın",
   "createAccount": "Hesap Oluştur",
-  "joinTimeTracker": "Time Tracker'a katılın ve zamanınızı yönetmeye başlayın",
+  "joinTimeTracker": "Verimly'e katılın ve zamanınızı yönetmeye başlayın",
   "signUp": "Kayıt Ol",
   "getStarted": "Başlamak için hesabınızı oluşturun",
   "fullName": "Ad Soyad",
@@ -60,5 +60,12 @@
   "passwordTooShort": "Şifre en az 6 karakter olmalıdır",
   "welcomeMessage": "🎉 Hoş geldiniz! Hesabınız başarıyla oluşturuldu. Şimdi giriş yapabilirsiniz.",
   "accountCreationFailed": "Hesap oluşturulamadı",
-  "registrationError": "Kayıt sırasında bir hata oluştu"
+  "registrationError": "Kayıt sırasında bir hata oluştu",
+  "logout": "Çıkış Yap",
+  "profile": "Profil",
+  "settings": "Ayarlar",
+  "features": "Özellikler",
+  "about": "Hakkında",
+  "pricing": "Fiyatlandırma",
+  "faq": "SSS"
 }

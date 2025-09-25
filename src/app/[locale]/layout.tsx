@@ -19,8 +19,8 @@ export async function generateMetadata({
   
   const metadata = {
     title: {
-      default: isEnglish ? 'TimeTracker - Time Tracking Application' : 'TimeTracker - Zaman Takip Uygulaması',
-      template: '%s | TimeTracker'
+      default: isEnglish ? 'Verimly - Time Tracking Application' : 'Verimly - Zaman Takip Uygulaması',
+    template: '%s | Verimly'
     },
     description: isEnglish 
       ? 'Track your time, achieve your goals with our advanced gamified time tracking system'
@@ -31,16 +31,16 @@ export async function generateMetadata({
     openGraph: {
       type: 'website',
       locale: isEnglish ? 'en_US' : 'tr_TR',
-      url: 'https://timetracker.codifya.com',
-      title: isEnglish ? 'TimeTracker - Time Tracking Application' : 'TimeTracker - Zaman Takip Uygulaması',
+      url: 'https://verimly.codifya.com',
+    title: isEnglish ? 'Verimly - Time Tracking Application' : 'Verimly - Zaman Takip Uygulaması',
       description: isEnglish 
         ? 'Track your time, achieve your goals with our advanced gamified time tracking system'
         : 'Gelişmiş gamifikasyon sistemi ile zaman takibi yapın, hedeflerinizi belirleyin ve verimliliğinizi artırın.',
-      siteName: 'TimeTracker',
+      siteName: 'Verimly',
     },
     twitter: {
       card: 'summary_large_image',
-      title: isEnglish ? 'TimeTracker - Time Tracking Application' : 'TimeTracker - Zaman Takip Uygulaması',
+      title: isEnglish ? 'Verimly - Time Tracking Application' : 'Verimly - Zaman Takip Uygulaması',
       description: isEnglish 
         ? 'Track your time, achieve your goals with our advanced gamified time tracking system'
         : 'Gelişmiş gamifikasyon sistemi ile zaman takibi yapın, hedeflerinizi belirleyin ve verimliliğinizi artırın.',

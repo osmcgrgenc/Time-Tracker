@@ -135,14 +135,14 @@
   },
   "home": {
     "hero": {
-      "title": "TimeTracker",
+      "title": "Verimly",
       "subtitle": "Zamanınızı takip edin, hedeflerinize ulaşın",
       "description": "Gamification özellikli gelişmiş zaman takip sistemi ile produktivitinizi artırın",
       "getStarted": "Başlayın",
       "learnMore": "Daha Fazla Bilgi"
     },
     "features": {
-      "title": "Neden TimeTracker?",
+      "title": "Neden Verimly?",
       "goalTracking": {
         "title": "Hedef Takibi",
         "description": "Günlük ve haftalık hedeflerinizi belirleyin ve takip edin"

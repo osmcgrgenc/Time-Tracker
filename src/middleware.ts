@@ -55,6 +55,24 @@ const authMiddleware = withAuth(
 )
 
 export default function middleware(request: NextRequest, event: NextFetchEvent) {
+  const pathname = request.nextUrl.pathname;
+  
+  // Skip middleware for API routes entirely
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
+  
+  // Check if the pathname already has a locale prefix
+  const hasLocalePrefix = /^\/(tr|en)(\/|$)/.test(pathname);
+  console.log('hasLocalePrefix:', hasLocalePrefix, pathname, pathname.startsWith('/api'));
+  
+  // If no locale prefix and not an internal Next.js route, redirect to default locale
+  if (!hasLocalePrefix && !pathname.startsWith('/_next')) {
+    const locale = 'tr'; // default locale
+    const redirectUrl = new URL(`/${locale}${pathname}`, request.url);
+    return NextResponse.redirect(redirectUrl);
+  }
+  
   // Handle admin routes separately (no auth required)
   if (request.nextUrl.pathname.startsWith('/admin') || 
       request.nextUrl.pathname.startsWith('/en/admin') ||
@@ -68,16 +86,7 @@ export default function middleware(request: NextRequest, event: NextFetchEvent) 
 
 export const config = {
   matcher: [
-    '/',
-    '/(tr|en)/:path*',
-    '/api/:path*',
-    '/dashboard/:path*',
-    '/timesheet/:path*',
-    '/projects/:path*',
-    '/tasks/:path*',
-    '/reports/:path*',
-    '/settings/:path*',
-    '/profile/:path*',
-    '/admin/:path*'
+    // Match all paths except API routes, Next.js internals and static files
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ]
 }

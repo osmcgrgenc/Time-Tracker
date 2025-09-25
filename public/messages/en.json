@@ -135,14 +135,14 @@
   },
   "home": {
     "hero": {
-      "title": "TimeTracker",
+      "title": "Verimly",
       "subtitle": "Track your time, achieve your goals",
       "description": "Boost your productivity with our advanced gamified time tracking system",
       "getStarted": "Get Started",
       "learnMore": "Learn More"
     },
     "features": {
-      "title": "Why TimeTracker?",
+      "title": "Why Verimly?",
       "goalTracking": {
         "title": "Goal Tracking",
         "description": "Set and track your daily and weekly goals"

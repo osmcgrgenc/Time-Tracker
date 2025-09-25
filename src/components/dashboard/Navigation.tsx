@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { LayoutDashboard, FileText, Trophy, Target, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useComponentPreloader } from '@/components/LazyComponents';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface NavigationProps {
@@ -22,6 +22,7 @@ export function Navigation({ activeView, onViewChange, userStats }: NavigationPr
   const { preloadOnHover } = useComponentPreloader();
   const t = useTranslations('navigation');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   
   const buttonClasses = useMemo(() => ({
     base: "relative flex items-center gap-3 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500/50",
@@ -38,7 +39,7 @@ export function Navigation({ activeView, onViewChange, userStats }: NavigationPr
             <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
               <Target className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900">TimeTracker</h1>
+            <h1 className="text-xl font-bold text-gray-900">Verimly</h1>
           </div>
 
           {/* Navigation */}
@@ -89,7 +90,7 @@ export function Navigation({ activeView, onViewChange, userStats }: NavigationPr
                 </div>
               </>
             )}
-            <LanguageSwitcher variant="ghost" />
+            <LanguageSwitcher variant="ghost" locale={locale} />
           </div>
         </div>
       </div>

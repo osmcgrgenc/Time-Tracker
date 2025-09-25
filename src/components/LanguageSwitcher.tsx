@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -22,15 +22,16 @@ interface LanguageSwitcherProps {
   size?: 'default' | 'sm' | 'lg';
   showText?: boolean;
   className?: string;
+  locale: string;
 }
 
 export function LanguageSwitcher({ 
   variant = 'ghost', 
   size = 'default', 
   showText = true,
-  className 
+  className,
+  locale 
 }: LanguageSwitcherProps) {
-  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations('common');
@@ -40,16 +41,16 @@ export function LanguageSwitcher({
   const switchLanguage = (newLocale: string) => {
     if (newLocale === locale) return;
 
-    // Remove current locale from pathname if it exists
-    let newPathname = pathname;
-    if (pathname.startsWith(`/${locale}`)) {
-      newPathname = pathname.slice(3) || '/';
+    // Remove current locale from pathname (always 3 characters: /xx)
+    let newPathname = pathname.slice(3) || '/';
+    
+    // Ensure newPathname starts with /
+    if (!newPathname.startsWith('/')) {
+      newPathname = '/' + newPathname;
     }
 
-    // Add new locale to pathname (except for Turkish which is default)
-    if (newLocale !== 'tr') {
-      newPathname = `/${newLocale}${newPathname}`;
-    }
+    // Add new locale to pathname (always prefix since localePrefix: 'always')
+    newPathname = `/${newLocale}${newPathname}`;
 
     router.push(newPathname);
   };
@@ -98,13 +99,14 @@ export function LanguageSwitcher({
 }
 
 // Compact version for mobile or tight spaces
-export function CompactLanguageSwitcher({ className }: { className?: string }) {
+export function CompactLanguageSwitcher({ className, locale }: { className?: string, locale: string }) {
   return (
     <LanguageSwitcher 
       variant="ghost" 
       size="sm" 
       showText={false}
       className={className}
+      locale={locale}
     />
   );
 }
@@ -118,14 +120,16 @@ export function TextLanguageSwitcher({ className }: { className?: string }) {
   const switchLanguage = (newLocale: string) => {
     if (newLocale === locale) return;
 
-    let newPathname = pathname;
-    if (pathname.startsWith(`/${locale}`)) {
-      newPathname = pathname.slice(3) || '/';
+    // Remove current locale from pathname (always 3 characters: /xx)
+    let newPathname = pathname.slice(3) || '/';
+    
+    // Ensure newPathname starts with /
+    if (!newPathname.startsWith('/')) {
+      newPathname = '/' + newPathname;
     }
 
-    if (newLocale !== 'tr') {
-      newPathname = `/${newLocale}${newPathname}`;
-    }
+    // Always add locale prefix since localePrefix: 'always'
+    newPathname = `/${newLocale}${newPathname}`;
 
     router.push(newPathname);
   };

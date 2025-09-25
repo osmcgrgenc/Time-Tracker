@@ -36,25 +36,117 @@
   },
   "socialProof": {
     "title": "Binlerce kullanıcı Verimly ile verimliliğini artırdı",
-    "testimonials": [
-      {
+    "testimonials": {
+      "0":{
         "name": "Ahmet Yılmaz",
         "role": "Yazılım Geliştirici",
         "content": "Verimly sayesinde odaklanma sürem %200 arttı. Pomodoro tekniği gerçekten işe yarıyor!",
         "rating": 5
       },
-      {
+      "1":{
         "name": "Elif Kaya",
         "role": "Proje Yöneticisi",
         "content": "Takım olarak kullanıyoruz. Herkesin verimliliği gözle görülür şekilde arttı.",
         "rating": 5
       },
-      {
+      "2":{
         "name": "Mehmet Demir",
         "role": "Freelancer",
         "content": "Oyunlaştırma özelliği motivasyonumu sürekli yüksek tutuyor. Harika bir uygulama!",
         "rating": 5
       }
-    ]
+    }
+  },
+  "stats": {
+    "users": "10.000+",
+    "usersLabel": "Aktif Kullanıcı",
+    "sessions": "500.000+",
+    "sessionsLabel": "Tamamlanan Seans",
+    "satisfaction": "%98",
+    "satisfactionLabel": "Kullanıcı Memnuniyeti"
+  },
+  "pricing": {
+    "title": "Planınızı Seçin",
+    "subtitle": "Ücretsiz başlayın, hazır olduğunuzda yükseltin",
+    "plans": {
+      "starter": {
+        "name": "Başlangıç",
+        "price": "Ücretsiz",
+        "period": "süresiz",
+        "features": [
+          "5 Proje",
+          "Temel Pomodoro Zamanlayıcı",
+          "Basit Raporlar",
+          "Mobil Uygulama Erişimi"
+        ],
+        "cta": "Başlayın",
+        "popular": false
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "₺299",
+        "period": "aylık",
+        "features": [
+          "Sınırsız Proje",
+          "Gelişmiş Analitik",
+          "Takım İşbirliği",
+          "Öncelikli Destek",
+          "Özel Temalar"
+        ],
+        "cta": "Ücretsiz Deneme Başlat",
+        "popular": true
+      },
+      "enterprise": {
+        "name": "Kurumsal",
+        "price": "₺999",
+        "period": "aylık",
+        "features": [
+          "Pro'daki Her Şey",
+          "Gelişmiş Takım Yönetimi",
+          "Özel Entegrasyonlar",
+          "Özel Destek",
+          "SSO ve Güvenlik"
+        ],
+        "cta": "Satış Ekibiyle İletişime Geç",
+        "popular": false
+      }
+    },
+    "guarantee": "14 günlük ücretsiz deneme",
+    "security": "Kurumsal düzeyde güvenlik"
+  },
+  "faq": {
+    "title": "Sıkça Sorulan Sorular",
+    "subtitle": "Verimly hakkında en çok merak edilen soruların cevaplarını bulun",
+    "questions": {
+      "0": {
+        "question": "Verimly nasıl çalışır?",
+        "answer": "Verimly, Pomodoro tekniği temelinde çalışır. 25 dakikalık odaklanma seansları ve 5 dakikalık molalarla verimliliğinizi artırır. Oyunlaştırma özelliği de motivasyonunuzu yüksek tutar."
+      },
+      "1": {
+        "question": "Ücretsiz plan yeterli mi?",
+        "answer": "Ücretsiz plan bireysel kullanım için oldukça yeterlidir. 5 proje, temel pomodoro zamanlayıcı ve basit raporlar içerir. Daha gelişmiş özellikler için Pro planı tercih edebilirsiniz."
+      },
+      "2": {
+        "question": "Takım olarak kullanabilir miyiz?",
+        "answer": "Evet! Pro ve Kurumsal planlarımız takım işbirliği özelliklerini içerir. Takım üyelerinin ilerlemesini takip edebilir, ortak projeler oluşturabilir ve detaylı raporlar alabilirsiniz."
+      },
+      "3": {
+        "question": "Mobil uygulaması var mı?",
+        "answer": "Evet, iOS ve Android için mobil uygulamalarımız mevcut. Web uygulamasıyla tam senkronizasyon sağlar, böylece çalışmanızı her yerden takip edebilirsiniz."
+      },
+      "4": {
+        "question": "Verilerim güvende mi?",
+        "answer": "Kesinlikle! Tüm verileriniz SSL şifreleme ile korunur. GDPR uyumlu veri işleme politikalarımız var ve verilerinizi asla üçüncü taraflarla paylaşmayız."
+      },
+      "5": {
+        "question": "İptal etmek istediğimde ne olur?",
+        "answer": "Aboneliğinizi istediğiniz zaman iptal edebilirsiniz. İptal sonrası mevcut dönem sonuna kadar premium özellikleri kullanmaya devam edebilirsiniz. Verileriniz korunur."
+      }
+    },
+    "contact": {
+      "title": "Başka sorularınız mı var?",
+      "description": "Destek ekibimiz size yardımcı olmaktan mutluluk duyar",
+      "cta": "İletişime Geçin"
+    }
   }
 }

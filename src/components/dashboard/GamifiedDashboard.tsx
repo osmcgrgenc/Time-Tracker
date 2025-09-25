@@ -545,7 +545,7 @@ export default function GamifiedDashboard() {
                   <Target className="h-3 w-3 sm:h-5 sm:w-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-sm sm:text-lg font-semibold text-gray-900">TimeTracker Pro</h1>
+                  <h1 className="text-sm sm:text-lg font-semibold text-gray-900">Verimly Pro</h1>
                   <p className="text-xs sm:text-sm text-gray-500">Level {userStats.level} • {userStats.xp} XP</p>
                 </div>
               </div>
