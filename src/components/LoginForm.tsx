@@ -11,8 +11,11 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, Clock, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useTranslations } from 'next-intl';
 
 export default function LoginForm() {
+  const t = useTranslations('auth');
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -40,33 +43,33 @@ export default function LoginForm() {
       });
       
       if (result?.error) {
-        let errorMessage = 'Giriş yapılırken bir hata oluştu.';
+        let errorMessage = t('login.errors.general');
 
         switch (result.error) {
           case 'CredentialsSignin':
-            errorMessage = 'E-posta veya şifre hatalı. Lütfen bilgilerinizi kontrol edin.';
+            errorMessage = t('login.errors.invalidCredentials');
             break;
           case 'EmailSignin':
-            errorMessage = 'E-posta adresinize gönderilen bağlantıyı kullanarak giriş yapın.';
+            errorMessage = t('login.errors.emailSignin');
             break;
           case 'OAuthSignin':
-            errorMessage = 'Sosyal medya girişi sırasında bir hata oluştu.';
+            errorMessage = t('login.errors.oauthSignin');
             break;
           case 'SessionRequired':
-            errorMessage = 'Bu işlem için giriş yapmanız gerekiyor.';
+            errorMessage = t('login.errors.sessionRequired');
             break;
           default:
-            errorMessage = 'Giriş yapılırken beklenmedik bir hata oluştu. Lütfen tekrar deneyin.';
+            errorMessage = t('login.errors.unexpected');
         }
 
         toast.error(errorMessage);
       } else if (result?.ok) {
-        toast.success('Giriş başarılı!');
+        toast.success(t('login.success'));
         router.push('/');
         router.refresh(); // Session'ı yenile
       }
     } catch (error) {
-      toast.error('Giriş sırasında bir hata oluştu');
+      toast.error(t('login.errors.general'));
     } finally {
       setIsLoading(false);
     }
@@ -86,38 +89,38 @@ export default function LoginForm() {
               <Clock className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tekrar Hoş Geldiniz</h1>
-          <p className="text-gray-600">Time Tracker hesabınıza giriş yapın</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('login.welcomeBack')}</h1>
+          <p className="text-gray-600">{t('login.subtitle')}</p>
         </div>
 
         {/* Login Form */}
         <Card className="shadow-xl border-0">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl font-semibold text-center">Giriş Yap</CardTitle>
+            <CardTitle className="text-2xl font-semibold text-center">{t('login.title')}</CardTitle>
             <CardDescription className="text-center">
-              Hesabınıza erişmek için bilgilerinizi girin
+              {t('login.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {showRegistrationSuccess ? (
               <Alert className="mb-4 border-green-200 bg-green-50">
                 <AlertTitle className="text-green-800 flex items-center gap-2">
-                  🎉 Hoş geldiniz! Hesabınız başarıyla oluşturuldu
+                  🎉 {t('register.successTitle')}
                 </AlertTitle>
                 <AlertDescription className="text-green-700">
-                  Artık Time Tracker'ı kullanmaya başlayabilirsiniz. Aşağıdaki formu kullanarak giriş yapın ve zamanınızı yönetmeye başlayın!
+                  {t('register.successDescription')}
                 </AlertDescription>
               </Alert>
             ) : null}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
-                  E-posta Adresi
+                  {t('login.email')}
                 </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="E-posta adresinizi girin"
+                  placeholder={t('login.emailPlaceholder')}
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   required
@@ -128,13 +131,13 @@ export default function LoginForm() {
               
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">
-                  Şifre
+                  {t('login.password')}
                 </Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Şifrenizi girin"
+                    placeholder={t('login.passwordPlaceholder')}
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
                     required
@@ -157,7 +160,7 @@ export default function LoginForm() {
                   href="/forgot-password"
                   className="text-sm font-medium text-orange-600 hover:text-orange-500 transition-colors"
                 >
-                  Şifremi unuttum
+                  {t('login.forgotPassword')}
                 </Link>
               </div>
 
@@ -166,19 +169,19 @@ export default function LoginForm() {
                 className="w-full h-11 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium"
                 disabled={isLoading}
               >
-                {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+                {isLoading ? t('login.signingIn') : t('login.signIn')}
               </Button>
             </form>
 
             {/* Divider */}
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Hesabınız yok mu?{' '}
+                {t('login.noAccount')}{' '}
                 <Link 
                   href="/signup" 
                   className="font-medium text-orange-600 hover:text-orange-500 transition-colors"
                 >
-                  Buradan kayıt olun
+                  {t('login.signUpHere')}
                 </Link>
               </p>
             </div>
@@ -190,7 +193,7 @@ export default function LoginForm() {
                 className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 transition-colors"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
-                Ana Sayfaya Dön
+                {t('login.backToHome')}
               </Link>
             </div>
           </CardContent>

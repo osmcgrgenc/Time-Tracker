@@ -1,0 +1,368 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "reset": "Reset",
+    "clear": "Clear",
+    "select": "Select",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+    "level": "Level",
+    "dayStreak": "day streak"
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "timesheet": "Timesheet",
+    "monitoring": "Monitoring",
+    "projects": "Projects",
+    "tasks": "Tasks",
+    "reports": "Reports",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "signup": "Sign Up"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "subtitle": "Sign in to your account",
+      "email": "Email",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "loginButton": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up",
+      "errors": {
+        "invalidCredentials": "Invalid email or password",
+        "emailRequired": "Email is required",
+        "passwordRequired": "Password is required",
+        "serverError": "Server error occurred"
+      },
+      "success": {
+        "registered": "Your account has been created successfully! You can now sign in."
+      }
+    },
+    "signup": {
+      "title": "Sign Up",
+      "subtitle": "Create a new account",
+      "name": "Full Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "signupButton": "Sign Up",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "errors": {
+        "nameRequired": "Full name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "passwordRequired": "Password is required",
+        "passwordTooShort": "Password must be at least 6 characters",
+        "passwordsNotMatch": "Passwords do not match",
+        "emailExists": "A user with this email address already exists",
+        "serverError": "Server error occurred"
+      },
+      "success": {
+        "accountCreated": "Your account has been created successfully! Redirecting to login page..."
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "We'll send you a password reset link",
+      "email": "Email",
+      "sendButton": "Send",
+      "backToLogin": "Back to login",
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "userNotFound": "No user found with this email address",
+        "serverError": "Server error occurred"
+      },
+      "success": {
+        "emailSent": "Password reset link has been sent to your email address"
+      }
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "subtitle": "Set your new password",
+      "password": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "resetButton": "Reset Password",
+      "errors": {
+        "passwordRequired": "Password is required",
+        "passwordTooShort": "Password must be at least 6 characters",
+        "passwordsNotMatch": "Passwords do not match",
+        "invalidToken": "Invalid or expired token",
+        "serverError": "Server error occurred"
+      },
+      "success": {
+        "passwordReset": "Your password has been successfully reset! Redirecting to login page..."
+      }
+    },
+    "errors": {
+      "userExists": "A user with this email address already exists",
+      "invalidCredentials": "Invalid email or password",
+      "userNotFound": "User not found",
+      "serverError": "Server error occurred"
+    },
+    "success": {
+      "registered": "Your account has been successfully created!",
+      "loggedIn": "Successfully logged in",
+      "loggedOut": "Successfully logged out"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "TimeTracker",
+      "subtitle": "Track your time, achieve your goals",
+      "description": "Boost your productivity with our advanced gamified time tracking system",
+      "getStarted": "Get Started",
+      "learnMore": "Learn More"
+    },
+    "features": {
+      "title": "Why TimeTracker?",
+      "goalTracking": {
+        "title": "Goal Tracking",
+        "description": "Set and track your daily and weekly goals"
+      },
+      "gamification": {
+        "title": "Gamification",
+        "description": "Earn XP, level up, and celebrate your achievements"
+      },
+      "analytics": {
+        "title": "Detailed Analytics",
+        "description": "Analyze your time usage and improve productivity"
+      },
+      "quickStart": {
+        "title": "Quick Start",
+        "description": "Set up in minutes and start using right away"
+      },
+      "teamWork": {
+        "title": "Team Collaboration",
+        "description": "Work with your team and track progress together"
+      },
+      "pomodoro": {
+        "title": "Pomodoro Timer",
+        "description": "Use the Pomodoro technique to improve focus"
+      }
+    },
+    "cta": {
+      "title": "Start today",
+      "description": "Create a free account and improve your time management",
+      "signup": "Sign Up Free",
+      "login": "Sign In"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome",
+    "todayStats": "Today's Statistics",
+    "totalTime": "Total Time",
+    "activeProjects": "Active Projects",
+    "completedTasks": "Completed Tasks",
+    "currentXP": "Current XP",
+    "level": "Level",
+    "achievements": "Achievements",
+    "recentActivity": "Recent Activity",
+    "quickActions": "Quick Actions",
+    "startTimer": "Start Timer",
+    "addProject": "Add Project",
+    "addTask": "Add Task"
+  },
+  "timer": {
+    "start": "Start",
+    "stop": "Stop",
+    "pause": "Pause",
+    "resume": "Resume",
+    "reset": "Reset",
+    "selectProject": "Select Project",
+    "selectTask": "Select Task",
+    "description": "Description",
+    "timeElapsed": "Time Elapsed",
+    "pomodoroMode": "Pomodoro Mode",
+    "focusTime": "Focus Time",
+    "breakTime": "Break Time",
+    "longBreak": "Long Break",
+    "session": "Session",
+    "break": "Break"
+  },
+  "projects": {
+    "title": "Projects",
+    "addProject": "New Project",
+    "editProject": "Edit Project",
+    "deleteProject": "Delete Project",
+    "projectName": "Project Name",
+    "projectDescription": "Project Description",
+    "projectColor": "Project Color",
+    "status": "Status",
+    "active": "Active",
+    "completed": "Completed",
+    "archived": "Archived",
+    "totalTime": "Total Time",
+    "tasksCount": "Tasks Count",
+    "progress": "Progress",
+    "deadline": "Deadline",
+    "noProjects": "No projects yet",
+    "createFirst": "Create your first project"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "addTask": "New Task",
+    "editTask": "Edit Task",
+    "deleteTask": "Delete Task",
+    "taskName": "Task Name",
+    "taskDescription": "Task Description",
+    "project": "Project",
+    "priority": "Priority",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "status": "Status",
+    "todo": "To Do",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "estimatedTime": "Estimated Time",
+    "actualTime": "Actual Time",
+    "dueDate": "Due Date",
+    "noTasks": "No tasks yet",
+    "createFirst": "Create your first task"
+  },
+  "timesheet": {
+    "title": "Timesheet",
+    "date": "Date",
+    "project": "Project",
+    "task": "Task",
+    "description": "Description",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "duration": "Duration",
+    "actions": "Actions",
+    "addEntry": "Add Entry",
+    "editEntry": "Edit Entry",
+    "deleteEntry": "Delete Entry",
+    "totalTime": "Total Time",
+    "export": "Export",
+    "filter": "Filter",
+    "dateRange": "Date Range",
+    "noEntries": "No entries found",
+    "addFirst": "Add your first entry"
+  },
+  "gamification": {
+    "xp": "XP",
+    "level": "Level",
+    "achievements": "Achievements",
+    "challenges": "Challenges",
+    "leaderboard": "Leaderboard",
+    "badges": "Badges",
+    "streak": "Streak",
+    "dailyGoal": "Daily Goal",
+    "weeklyGoal": "Weekly Goal",
+    "monthlyGoal": "Monthly Goal",
+    "congratulations": "Congratulations!",
+    "newAchievement": "New Achievement Unlocked!",
+    "levelUp": "Level Up!",
+    "challengeCompleted": "Challenge Completed!",
+    "xpEarned": "XP Earned",
+    "keepGoing": "Keep going!"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "languages": {
+      "title": "Language Management",
+      "description": "Manage application languages",
+      "selectLanguage": "Select Language",
+      "turkish": "Turkish",
+      "english": "English",
+      "editTranslations": "Edit Translations",
+      "saveChanges": "Save Changes",
+      "resetToDefault": "Reset to Default",
+      "exportLanguage": "Export Language",
+      "importLanguage": "Import Language",
+      "addNewKey": "Add New Key",
+      "deleteKey": "Delete Key",
+      "keyName": "Key Name",
+      "translation": "Translation",
+      "search": "Search Translations",
+      "filter": "Filter",
+      "showAll": "Show All",
+      "showMissing": "Show Missing",
+      "showCompleted": "Show Completed",
+      "success": {
+        "saved": "Translations saved successfully",
+        "imported": "Language file imported successfully",
+        "exported": "Language file exported successfully",
+        "keyAdded": "New key added successfully",
+        "keyDeleted": "Key deleted successfully",
+        "reset": "Translations reset to default values"
+      },
+      "errors": {
+        "saveFailed": "Failed to save translations",
+        "importFailed": "Failed to import language file",
+        "exportFailed": "Failed to export language file",
+        "keyExists": "This key already exists",
+        "keyRequired": "Key name is required",
+        "translationRequired": "Translation is required",
+        "invalidFile": "Invalid file format"
+      }
+    },
+    "auth": {
+      "title": "Admin Login",
+      "password": "Admin Password",
+      "login": "Login",
+      "logout": "Logout",
+      "errors": {
+        "wrongPassword": "Wrong password",
+        "passwordRequired": "Password is required"
+      }
+    }
+  },
+  "errors": {
+    "pageNotFound": "Page not found",
+    "serverError": "Server error",
+    "unauthorized": "Unauthorized access",
+    "forbidden": "Access forbidden",
+    "badRequest": "Bad request",
+    "networkError": "Network error",
+    "unknownError": "Unknown error",
+    "tryAgain": "Try again",
+    "goHome": "Go to homepage",
+    "contactSupport": "Contact support"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "minLength": "Must be at least {min} characters",
+    "maxLength": "Must be at most {max} characters",
+    "numeric": "Only numbers are allowed",
+    "alphanumeric": "Only letters and numbers are allowed",
+    "url": "Please enter a valid URL",
+    "phone": "Please enter a valid phone number",
+    "date": "Please enter a valid date",
+    "time": "Please enter a valid time",
+    "passwordMatch": "Passwords do not match",
+    "fileSize": "File size is too large",
+    "fileType": "Unsupported file type"
+  }
+}

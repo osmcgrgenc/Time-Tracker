@@ -1,73 +1,113 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { ServiceWorkerProvider } from "@/components/ServiceWorkerProvider";
-import { RoutePreloadManager } from "@/components/RouteBasedSplitting";
-import { SessionProviderWrapper } from "@/components/providers/SessionProviderWrapper";
-import { SkipLinks } from "@/components/SkipLink";
+import type { Metadata } from 'next'
+import { Inter, JetBrains_Mono } from 'next/font/google'
+import './globals.css'
+import { Toaster } from '@/components/ui/sonner'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { ThemeProvider } from '@/components/theme-provider'
+import { ServiceWorkerProvider } from '@/components/service-worker-provider'
+import { SessionProviderWrapper } from '@/components/session-provider-wrapper'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
+import { notFound } from 'next/navigation'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: "Time Tracker Pro - Gamified Time Management",
-  description: "Advanced gamified time tracking with XP system, achievements, challenges, and comprehensive analytics.",
-  keywords: ["time tracking", "gamification", "productivity", "XP system", "achievements", "timer"],
-  authors: [{ name: "Time Tracker Pro Team" }],
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Time Tracker Pro",
+  title: {
+    default: 'TimeTracker - Zaman Takip Uygulaması',
+    template: '%s | TimeTracker'
+  },
+  description: 'Gelişmiş gamifikasyon sistemi ile zaman takibi yapın, hedeflerinizi belirleyin ve verimliliğinizi artırın.',
+  keywords: ['zaman takibi', 'pomodoro', 'verimlilik', 'proje yönetimi', 'gamifikasyon'],
+  authors: [{ name: 'TimeTracker Team' }],
+  creator: 'TimeTracker Team',
+  publisher: 'TimeTracker',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://timetracker.codifya.com'),
+  alternates: {
+    canonical: '/',
   },
   openGraph: {
-    title: "Time Tracker Pro",
-    description: "Gamified time management with XP, levels, and achievements",
-    type: "website",
+    type: 'website',
+    locale: 'tr_TR',
+    url: 'https://timetracker.codifya.com',
+    title: 'TimeTracker - Zaman Takip Uygulaması',
+    description: 'Gelişmiş gamifikasyon sistemi ile zaman takibi yapın, hedeflerinizi belirleyin ve verimliliğinizi artırın.',
+    siteName: 'TimeTracker',
   },
-};
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TimeTracker - Zaman Takip Uygulaması',
+    description: 'Gelişmiş gamifikasyon sistemi ile zaman takibi yapın, hedeflerinizi belirleyin ve verimliliğinizi artırın.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+  },
+}
 
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
+type Props = {
   children: React.ReactNode;
-}>) {
+  params: { locale: string };
+};
+
+export default async function RootLayout({
+  children,
+  params: { locale }
+}: Props) {
+  // Validate that the incoming `locale` parameter is valid
+  if (!['tr', 'en'].includes(locale)) {
+    notFound();
+  }
+
+  // Providing all messages to the client
+  // side is the easiest way to get started
+  const messages = await getMessages();
+
   return (
-    <html lang="tr" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900`}
-      >
-        <SkipLinks />
-        <ServiceWorkerProvider>
-          <RoutePreloadManager>
-            <SessionProviderWrapper>
-              <ThemeProvider>
-                <AuthProvider>
-                  {children}
-                  <Toaster />
-                </AuthProvider>
+    <html lang={locale} className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className={inter.className}>
+        <NextIntlClientProvider messages={messages}>
+          <SessionProviderWrapper>
+            <AuthProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <ServiceWorkerProvider />
+                {children}
+                <Toaster />
               </ThemeProvider>
-            </SessionProviderWrapper>
-          </RoutePreloadManager>
-        </ServiceWorkerProvider>
+            </AuthProvider>
+          </SessionProviderWrapper>
+        </NextIntlClientProvider>
       </body>
     </html>
-  );
+  )
 }
