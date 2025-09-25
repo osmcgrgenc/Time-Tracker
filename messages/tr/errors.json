@@ -1,0 +1,20 @@
+{
+  "general": "Bir hata oluştu",
+  "networkError": "Ağ hatası",
+  "serverError": "Sunucu hatası",
+  "notFound": "Bulunamadı",
+  "unauthorized": "Yetkisiz erişim",
+  "forbidden": "Erişim yasak",
+  "badRequest": "Geçersiz istek",
+  "timeout": "Zaman aşımı",
+  "connectionFailed": "Bağlantı başarısız",
+  "invalidData": "Geçersiz veri",
+  "fileNotFound": "Dosya bulunamadı",
+  "permissionDenied": "İzin reddedildi",
+  "sessionExpired": "Oturum süresi doldu",
+  "tooManyRequests": "Çok fazla istek",
+  "maintenanceMode": "Bakım modu",
+  "unexpectedError": "Beklenmeyen hata",
+  "tryAgain": "Tekrar deneyin",
+  "contactSupport": "Destek ile iletişime geçin"
+}

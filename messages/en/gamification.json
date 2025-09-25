@@ -1,0 +1,23 @@
+{
+  "level": "Level",
+  "xp": "XP",
+  "achievements": "Achievements",
+  "badges": "Badges",
+  "streak": "Streak",
+  "dayStreak": "Day Streak",
+  "weekStreak": "Week Streak",
+  "points": "Points",
+  "leaderboard": "Leaderboard",
+  "rank": "Rank",
+  "progress": "Progress",
+  "nextLevel": "Next Level",
+  "unlocked": "Unlocked",
+  "locked": "Locked",
+  "earnedBadges": "Earned Badges",
+  "availableBadges": "Available Badges",
+  "dailyGoal": "Daily Goal",
+  "weeklyGoal": "Weekly Goal",
+  "monthlyGoal": "Monthly Goal",
+  "goalAchieved": "Goal Achieved",
+  "congratulations": "Congratulations!"
+}

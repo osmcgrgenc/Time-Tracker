@@ -1,0 +1,14 @@
+{
+  "home": "Home",
+  "dashboard": "Dashboard",
+  "timesheet": "Timesheet",
+  "monitoring": "Monitoring",
+  "projects": "Projects",
+  "tasks": "Tasks",
+  "reports": "Reports",
+  "settings": "Settings",
+  "profile": "Profile",
+  "logout": "Logout",
+  "login": "Login",
+  "signup": "Sign Up"
+}

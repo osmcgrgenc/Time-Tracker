@@ -1,0 +1,16 @@
+{
+  "title": "Dashboard",
+  "welcome": "Welcome",
+  "todayStats": "Today's Statistics",
+  "totalTime": "Total Time",
+  "activeProjects": "Active Projects",
+  "completedTasks": "Completed Tasks",
+  "currentXP": "Current XP",
+  "level": "Level",
+  "achievements": "Achievements",
+  "recentActivity": "Recent Activity",
+  "quickActions": "Quick Actions",
+  "startTimer": "Start Timer",
+  "addProject": "Add Project",
+  "addTask": "Add Task"
+}

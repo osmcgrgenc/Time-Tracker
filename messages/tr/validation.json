@@ -1,0 +1,21 @@
+{
+  "required": "Bu alan zorunludur",
+  "email": "Geçerli bir e-posta adresi girin",
+  "password": "Şifre en az 8 karakter olmalıdır",
+  "passwordMatch": "Şifreler eşleşmiyor",
+  "minLength": "En az {min} karakter olmalıdır",
+  "maxLength": "En fazla {max} karakter olmalıdır",
+  "numeric": "Sadece sayı girebilirsiniz",
+  "alphanumeric": "Sadece harf ve sayı girebilirsiniz",
+  "url": "Geçerli bir URL girin",
+  "phone": "Geçerli bir telefon numarası girin",
+  "date": "Geçerli bir tarih girin",
+  "time": "Geçerli bir saat girin",
+  "positiveNumber": "Pozitif bir sayı girin",
+  "integer": "Tam sayı girin",
+  "decimal": "Ondalık sayı girin",
+  "fileSize": "Dosya boyutu çok büyük",
+  "fileType": "Desteklenmeyen dosya türü",
+  "unique": "Bu değer zaten kullanılıyor",
+  "range": "{min} ile {max} arasında bir değer girin"
+}
