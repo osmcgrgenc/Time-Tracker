@@ -1,0 +1,16 @@
+{
+  "notFound": {
+    "title": "Sayfa Bulunamadı",
+    "subtitle": "Ups! Aradığınız sayfa kaybolmuş gibi görünüyor.",
+    "whatHappened": "Ne oldu?",
+    "description": "İstediğiniz sayfa bulunamadı. Sayfa taşınmış, silinmiş olabilir veya yanlış URL girmiş olabilirsiniz.",
+    "goHome": "Ana Sayfaya Git",
+    "goBack": "Geri Dön",
+    "needHelp": "Yardıma mı ihtiyacınız var? İşte bazı öneriler:",
+    "suggestions": {
+      "checkUrl": "URL'yi kontrol edin ve doğru yazdığınızdan emin olun",
+      "useNavigation": "Ana menüden istediğiniz sayfaya gidin",
+      "contactSupport": "Sorun devam ederse destek ekibiyle iletişime geçin"
+    }
+  }
+}

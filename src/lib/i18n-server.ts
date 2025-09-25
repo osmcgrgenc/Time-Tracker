@@ -10,7 +10,40 @@ export async function getServerTranslations(locale?: string) {
   const validLocale = locale && locales.includes(locale as Locale) ? locale as Locale : 'tr';
   
   try {
-    const messages = (await import(`../../messages/${validLocale}.json`)).default;
+    // Load all message files for the locale
+    const [common, auth, dashboard, errors, navigation, projects, tasks, timer, timesheet, validation, gamification, admin, home, error] = await Promise.all([
+      import(`../../messages/${validLocale}/common.json`),
+      import(`../../messages/${validLocale}/auth.json`),
+      import(`../../messages/${validLocale}/dashboard.json`),
+      import(`../../messages/${validLocale}/errors.json`),
+      import(`../../messages/${validLocale}/navigation.json`),
+      import(`../../messages/${validLocale}/projects.json`),
+      import(`../../messages/${validLocale}/tasks.json`),
+      import(`../../messages/${validLocale}/timer.json`),
+      import(`../../messages/${validLocale}/timesheet.json`),
+      import(`../../messages/${validLocale}/validation.json`),
+      import(`../../messages/${validLocale}/gamification.json`),
+      import(`../../messages/${validLocale}/admin.json`),
+      import(`../../messages/${validLocale}/home.json`),
+      import(`../../messages/${validLocale}/error.json`)
+    ]);
+    
+    const messages = {
+      ...common.default,
+      auth: auth.default,
+      dashboard: dashboard.default,
+      errors: errors.default,
+      navigation: navigation.default,
+      projects: projects.default,
+      tasks: tasks.default,
+      timer: timer.default,
+      timesheet: timesheet.default,
+      validation: validation.default,
+      gamification: gamification.default,
+      admin: admin.default,
+      home: home.default,
+      error: error.default
+    };
     return {
       locale: validLocale,
       messages,

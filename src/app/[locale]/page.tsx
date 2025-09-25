@@ -1,14 +1,15 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import GamifiedDashboard from '@/components/dashboard/GamifiedDashboard';
+import { useTranslations } from 'next-intl';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Clock, Target, Trophy, Zap, Users, BarChart3, ArrowRight, Timer } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { Clock, BarChart3, Users, Zap, CheckCircle, ArrowRight, Star, Shield, Smartphone, Target, Trophy, Timer } from 'lucide-react';
+import GamifiedDashboard from '@/components/dashboard/GamifiedDashboard';
+import { Header } from '@/components/Header';
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -61,7 +62,9 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <>
+      <Header />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <main id="main-content">
       {/* Hero Section */}
       <section className="relative overflow-hidden px-6 py-24 sm:py-32 lg:px-8">
@@ -189,6 +192,7 @@ export default function Home() {
         </div>
       </section>
       </main>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,0 +1,16 @@
+{
+  "notFound": {
+    "title": "Page Not Found",
+    "subtitle": "Oops! The page you're looking for seems to have gone missing.",
+    "whatHappened": "What happened?",
+    "description": "The page you requested could not be found. It may have been moved, deleted, or you may have entered an incorrect URL.",
+    "goHome": "Go to Homepage",
+    "goBack": "Go Back",
+    "needHelp": "Need help? Here are some suggestions:",
+    "suggestions": {
+      "checkUrl": "Check the URL and make sure it's spelled correctly",
+      "useNavigation": "Use the main navigation to find the page you're looking for",
+      "contactSupport": "Contact our support team if the problem persists"
+    }
+  }
+}

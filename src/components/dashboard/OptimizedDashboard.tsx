@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme as useCustomTheme } from '@/contexts/ThemeContext';
+import { useTheme } from 'next-themes';
 import { useForm } from '@/hooks/useForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AccessibleButton } from '@/components/ui/accessible-button';
@@ -25,7 +26,8 @@ interface TimerFormData {
 
 export default function OptimizedDashboard() {
   const { user, logout } = useAuth();
-  const { theme, setTheme, colorScheme, setColorScheme, isDark } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const { colorScheme, setColorScheme, isDark } = useCustomTheme();
   const {
     timers,
     projects,

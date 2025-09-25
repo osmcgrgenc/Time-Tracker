@@ -22,12 +22,6 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: {
-    default: 'TimeTracker - Zaman Takip Uygulaması',
-    template: '%s | TimeTracker'
-  },
-  description: 'Gelişmiş gamifikasyon sistemi ile zaman takibi yapın, hedeflerinizi belirleyin ve verimliliğinizi artırın.',
-  keywords: ['zaman takibi', 'pomodoro', 'verimlilik', 'proje yönetimi', 'gamifikasyon'],
   authors: [{ name: 'TimeTracker Team' }],
   creator: 'TimeTracker Team',
   publisher: 'TimeTracker',
@@ -39,19 +33,6 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://timetracker.codifya.com'),
   alternates: {
     canonical: '/',
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'tr_TR',
-    url: 'https://timetracker.codifya.com',
-    title: 'TimeTracker - Zaman Takip Uygulaması',
-    description: 'Gelişmiş gamifikasyon sistemi ile zaman takibi yapın, hedeflerinizi belirleyin ve verimliliğinizi artırın.',
-    siteName: 'TimeTracker',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'TimeTracker - Zaman Takip Uygulaması',
-    description: 'Gelişmiş gamifikasyon sistemi ile zaman takibi yapın, hedeflerinizi belirleyin ve verimliliğinizi artırın.',
   },
   robots: {
     index: true,
@@ -77,7 +58,7 @@ export default function RootLayout({
 
 
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body className={inter.className}>
         <SessionProviderWrapper>
           <AuthProvider>

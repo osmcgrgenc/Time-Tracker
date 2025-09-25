@@ -10,5 +10,7 @@
   "profile": "Profile",
   "logout": "Logout",
   "login": "Login",
-  "signup": "Sign Up"
+  "signup": "Sign Up",
+  "features": "Features",
+  "about": "About"
 }

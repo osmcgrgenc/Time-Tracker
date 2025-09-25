@@ -7,7 +7,7 @@ import { withAuth, NextRequestWithAuth } from 'next-auth/middleware'
 const intlMiddleware = createIntlMiddleware({
   locales: ['tr', 'en'],
   defaultLocale: 'tr',
-  localePrefix: 'as-needed'
+  localePrefix: 'always'
 });
 
 const authMiddleware = withAuth(
@@ -39,7 +39,7 @@ const authMiddleware = withAuth(
           pathWithoutLocale.startsWith('/api/auth') ||
           pathWithoutLocale === '/' ||
           pathWithoutLocale === '/login' ||
-          pathWithoutLocale === '/register' ||
+          pathWithoutLocale === '/signup' ||
           pathWithoutLocale === '/forgot-password' ||
           pathWithoutLocale.startsWith('/reset-password') ||
           pathWithoutLocale.startsWith('/admin')

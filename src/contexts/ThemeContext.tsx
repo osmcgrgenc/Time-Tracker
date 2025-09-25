@@ -1,15 +1,13 @@
 'use client';
 
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useTheme as useNextTheme } from 'next-themes';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
-type Theme = 'light' | 'dark' | 'system';
 type ColorScheme = 'blue' | 'green' | 'purple' | 'orange';
 
 interface ThemeContextType {
-  theme: Theme;
   colorScheme: ColorScheme;
-  setTheme: (theme: Theme) => void;
   setColorScheme: (scheme: ColorScheme) => void;
   isDark: boolean;
 }
@@ -17,29 +15,27 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useLocalStorage<Theme>('theme', 'system');
+  const { theme, resolvedTheme } = useNextTheme();
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>('colorScheme', 'orange');
+  const [mounted, setMounted] = useState(false);
 
-  const isDark = theme === 'dark' || (theme === 'system' && 
-    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  // Prevent hydration mismatch by only calculating isDark after mount
+  const isDark = mounted ? resolvedTheme === 'dark' : false;
 
   useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
-    
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      root.classList.add(systemTheme);
-    } else {
-      root.classList.add(theme);
-    }
+    setMounted(true);
+  }, []);
 
-    // Apply color scheme
-    root.setAttribute('data-color-scheme', colorScheme);
-  }, [theme, colorScheme]);
+  useEffect(() => {
+    if (mounted) {
+      // Apply color scheme
+      const root = window.document.documentElement;
+      root.setAttribute('data-color-scheme', colorScheme);
+    }
+  }, [colorScheme, mounted]);
 
   return (
-    <ThemeContext.Provider value={{ theme, colorScheme, setTheme, setColorScheme, isDark }}>
+    <ThemeContext.Provider value={{ colorScheme, setColorScheme, isDark }}>
       {children}
     </ThemeContext.Provider>
   );
