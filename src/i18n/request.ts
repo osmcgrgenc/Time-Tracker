@@ -1,53 +1,31 @@
-import { notFound } from 'next/navigation';
-import { getRequestConfig } from 'next-intl/server';
+import {getRequestConfig} from 'next-intl/server';
+import {routing} from './routing';
 
-// Can be imported from a shared config
-const locales = ['tr', 'en'] as const;
-export type Locale = (typeof locales)[number];
-
-// Function to load all message files for a locale
-async function loadMessages(locale: string) {
-  const [common, navigation, auth, home, dashboard, timer, projects, tasks, timesheet, gamification, admin, errors, validation] = await Promise.all([
-    import(`../../messages/${locale}/common.json`),
-    import(`../../messages/${locale}/navigation.json`),
-    import(`../../messages/${locale}/auth.json`),
-    import(`../../messages/${locale}/home.json`),
-    import(`../../messages/${locale}/dashboard.json`),
-    import(`../../messages/${locale}/timer.json`),
-    import(`../../messages/${locale}/projects.json`),
-    import(`../../messages/${locale}/tasks.json`),
-    import(`../../messages/${locale}/timesheet.json`),
-    import(`../../messages/${locale}/gamification.json`),
-    import(`../../messages/${locale}/admin.json`),
-    import(`../../messages/${locale}/errors.json`),
-    import(`../../messages/${locale}/validation.json`)
-  ]);
-
-  return {
-    common: common.default,
-    navigation: navigation.default,
-    auth: auth.default,
-    home: home.default,
-    dashboard: dashboard.default,
-    timer: timer.default,
-    projects: projects.default,
-    tasks: tasks.default,
-    timesheet: timesheet.default,
-    gamification: gamification.default,
-    admin: admin.default,
-    errors: errors.default,
-    validation: validation.default
+// This is now simplified since we handle locale directly in the layout
+export default getRequestConfig(async ({locale}) => {
+  console.log('🌐 Request config - locale:', locale);
+  
+  // Default to Turkish if no locale provided
+  const finalLocale = locale || routing.defaultLocale;
+  
+  console.log('✅ Request config - using locale:', finalLocale);
+  const messages = {
+    ...(await import(`../../messages/${finalLocale}/common.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/navigation.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/home.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/auth.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/dashboard.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/admin.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/projects.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/tasks.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/timer.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/timesheet.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/gamification.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/errors.json`)).default,
+    ...(await import(`../../messages/${finalLocale}/validation.json`)).default
   };
-}
-
-export default getRequestConfig(async ({ locale }) => {
-  // Validate that the incoming `locale` parameter is valid
-  if (!locale || !locales.includes(locale as any)) notFound();
-
   return {
-    locale: locale as string,
-    messages: await loadMessages(locale as string)
+    locale: finalLocale,
+    messages
   };
 });
-
-export { locales };

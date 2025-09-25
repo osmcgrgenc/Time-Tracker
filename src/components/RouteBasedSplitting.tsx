@@ -69,27 +69,27 @@ const LoadingSpinner = ({ message }: { message: string }) => (
 
 // Lazy loaded route components
 export const LazyDashboardPage = DynamicImports.lazyComponent(
-  () => import('@/app/page')
+  () => import('@/app/[locale]/page')
 );
 
 export const LazyProjectsPage = DynamicImports.lazyComponent(
-  () => import('@/app/timesheet/page')
+  () => import('@/app/[locale]/timesheet/page')
 );
 
 export const LazyTasksPage = DynamicImports.lazyComponent(
-  () => import('@/app/timesheet/page')
+  () => import('@/app/[locale]/timesheet/page')
 );
 
 export const LazyTimersPage = DynamicImports.lazyComponent(
-  () => import('@/app/timesheet/page')
+  () => import('@/app/[locale]/timesheet/page')
 );
 
 export const LazyReportsPage = DynamicImports.lazyComponent(
-  () => import('@/app/monitoring/page')
+  () => import('@/app/[locale]/monitoring/page')
 );
 
 export const LazySettingsPage = DynamicImports.lazyComponent(
-  () => import('@/app/timesheet/page')
+  () => import('@/app/[locale]/timesheet/page')
 );
 
 // Wrapped components with appropriate loading states
@@ -131,12 +131,12 @@ export const SettingsPageWithSuspense = () => (
 
 // Route preloading utilities
 export const RoutePreloader = {
-  dashboard: () => DynamicImports.preloadComponent(() => import('@/app/page')),
-  projects: () => DynamicImports.preloadComponent(() => import('@/app/timesheet/page')),
-  tasks: () => DynamicImports.preloadComponent(() => import('@/app/timesheet/page')),
-  timers: () => DynamicImports.preloadComponent(() => import('@/app/timesheet/page')),
-  reports: () => DynamicImports.preloadComponent(() => import('@/app/monitoring/page')),
-  settings: () => DynamicImports.preloadComponent(() => import('@/app/timesheet/page')),
+  dashboard: () => DynamicImports.preloadComponent(() => import('@/app/[locale]/page')),
+  projects: () => DynamicImports.preloadComponent(() => import('@/app/[locale]/timesheet/page')),
+  tasks: () => DynamicImports.preloadComponent(() => import('@/app/[locale]/timesheet/page')),
+  timers: () => DynamicImports.preloadComponent(() => import('@/app/[locale]/timesheet/page')),
+  reports: () => DynamicImports.preloadComponent(() => import('@/app/[locale]/monitoring/page')),
+  settings: () => DynamicImports.preloadComponent(() => import('@/app/[locale]/timesheet/page')),
 };
 
 // Hook for route-based preloading

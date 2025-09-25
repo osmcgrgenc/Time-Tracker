@@ -6,9 +6,8 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ServiceWorkerProvider } from '@/components/service-worker-provider'
 import { SessionProviderWrapper } from '@/components/session-provider-wrapper'
-import { NextIntlClientProvider } from 'next-intl'
-import { getMessages } from 'next-intl/server'
-import { notFound } from 'next/navigation'
+import { TooltipProvider } from '@/components/ui/tooltip'
+
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -70,43 +69,32 @@ export const metadata: Metadata = {
   },
 }
 
-type Props = {
-  children: React.ReactNode;
-  params: { locale: string };
-};
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
-  params: { locale }
-}: Props) {
-  // Validate that the incoming `locale` parameter is valid
-  if (!['tr', 'en'].includes(locale)) {
-    notFound();
-  }
+}: {
+  children: React.ReactNode;
+}) {
 
-  // Providing all messages to the client
-  // side is the easiest way to get started
-  const messages = await getMessages();
 
   return (
-    <html lang={locale} className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className={inter.className}>
-        <NextIntlClientProvider messages={messages}>
-          <SessionProviderWrapper>
-            <AuthProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-              >
+        <SessionProviderWrapper>
+          <AuthProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <TooltipProvider>
                 <ServiceWorkerProvider />
                 {children}
                 <Toaster />
-              </ThemeProvider>
-            </AuthProvider>
-          </SessionProviderWrapper>
-        </NextIntlClientProvider>
+              </TooltipProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </SessionProviderWrapper>
       </body>
     </html>
   )

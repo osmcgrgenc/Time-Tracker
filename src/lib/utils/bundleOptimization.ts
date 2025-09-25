@@ -208,12 +208,12 @@ export class ResourceOptimization {
 export const CodeSplittingConfig = {
   // Route-based splitting
   routes: {
-    dashboard: () => import('../../app/page'),
-    projects: () => import('../../app/timesheet/page'),
-    tasks: () => import('../../app/timesheet/page'),
-    timers: () => import('../../app/timesheet/page'),
-    reports: () => import('../../app/monitoring/page'),
-    settings: () => import('../../app/timesheet/page'),
+    dashboard: () => import('../../app/[locale]/page'),
+    projects: () => import('../../app/[locale]/timesheet/page'),
+    tasks: () => import('../../app/[locale]/timesheet/page'),
+    timers: () => import('../../app/[locale]/timesheet/page'),
+    reports: () => import('../../app/[locale]/monitoring/page'),
+    settings: () => import('../../app/[locale]/timesheet/page'),
   },
 
   // Component-based splitting
