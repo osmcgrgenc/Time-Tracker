@@ -12,7 +12,7 @@ export async function getAuthSession() {
 export async function getUserIdFromToken(req: NextRequest): Promise<string | null> {
   try {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-    return token?.userId || null
+    return token?.id as string || token?.userId || null;
   } catch (error) {
     console.error('Error getting user ID from token:', error)
     return null

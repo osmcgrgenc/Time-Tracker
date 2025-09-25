@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ERROR_MESSAGES } from '@/lib/api-helpers';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-config';
 
 export async function validateResourceOwnership(
   userId: string,
@@ -62,7 +63,7 @@ export function withAuth<T extends any[]>(
 ) {
   return async (request: NextRequest, ...args: T): Promise<NextResponse> => {
     try {
-      const session = await getServerSession();
+      const session = await getServerSession(authOptions);
       
       if (!session?.user?.id) {
         return NextResponse.json(
